@@ -19,11 +19,10 @@ class FallingItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Gambar (placeholder dulu — pakai emoji sebagai fallback
-        // sampai aset gambar siap).
+        // Gambar asli dari assets/images/<kata>.png
         Container(
-          width: 64,
-          height: 64,
+          width: 72,
+          height: 72,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -36,7 +35,20 @@ class FallingItem extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(_iconForImage(kata.image), size: 36, color: const Color(0xFF3B5BA5)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.asset(
+              'assets/images/${kata.image}.png',
+              width: 72,
+              height: 72,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.image,
+                size: 36,
+                color: Color(0xFF3B5BA5),
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 4),
         // Arti Bahasa Indonesia (petunjuk).
@@ -68,34 +80,5 @@ class FallingItem extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// Peta nama gambar → ikon (placeholder sampai aset gambar siap).
-  static IconData _iconForImage(String image) {
-    const map = {
-      'cat': Icons.pets,
-      'dog': Icons.pets,
-      'bird': Icons.flutter_dash,
-      'fish': Icons.set_meal,
-      'horse': Icons.pets,
-      'apple': Icons.apple,
-      'book': Icons.menu_book,
-      'chair': Icons.chair,
-      'phone': Icons.phone,
-      'lamp': Icons.lightbulb,
-      'key': Icons.key,
-      'umbrella': Icons.beach_access,
-      'clock': Icons.schedule,
-      'one': Icons.looks_one,
-      'two': Icons.looks_two,
-      'three': Icons.looks_3,
-      'four': Icons.looks_4,
-      'five': Icons.looks_5,
-      'red': Icons.color_lens,
-      'blue': Icons.color_lens,
-      'green': Icons.color_lens,
-      'yellow': Icons.color_lens,
-    };
-    return map[image] ?? Icons.image;
   }
 }

@@ -4,21 +4,15 @@ Semua aset di project ini **bebas lisensi / original**. Dokumentasi ini penting 
 
 ## Gambar Kosakata (100)
 
-**Status:** Belum diisi — gunakan salah satu sumber berikut (semua gratis):
-
-| Sumber | Lisensi | Catatan |
-|---|---|---|
-| [OpenGameArt](https://opengameart.org) | CC0 / CC BY | Filter "CC0" untuk bebas total |
-| [Flaticon](https://flaticon.com) | Gratis dengan kredit | Wajib tulis kredit di About |
-| [Twemoji](https://github.com/twitter/twemoji) | CC BY 4.0 | Emoji, tulis kredit |
-| Emoji bawaan (fallback) | — | Sudah dipakai di kode sementara |
-
-**Aturan:** setiap gambar yang diunduh, catat di tabel bawah:
+**Sumber: OpenMoji** (https://openmoji.org) — lisensi **CC BY-SA 4.0**
+- Diunduh dari `hfg-gmuend/openmoji` (folder `color/618x618/`)
+- 99 PNG emoji mewakili 100 kosakata
+- **Kredit wajib** (CC BY-SA): "Emoji dari OpenMoji — openmoji.org (CC BY-SA 4.0)"
+- Kredit ini sudah ditulis di halaman About/tentang aplikasi
 
 | Nama file | Sumber | Lisensi | Kredit |
 |---|---|---|---|
-| (contoh) cat.png | OpenGameArt | CC0 | — |
-| | | | |
+| *.png (99 file) | OpenMoji | CC BY-SA 4.0 | OpenMoji (openmoji.org) |
 
 ## Audio
 
