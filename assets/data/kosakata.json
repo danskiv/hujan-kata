@@ -841,6 +841,748 @@
           "image": "hotdog"
         }
       ]
+    },
+    {
+      "id": "alam",
+      "name": "Alam & Cuaca",
+      "words": [
+        {
+          "en": "sun",
+          "id": "matahari",
+          "image": "sun"
+        },
+        {
+          "en": "moon",
+          "id": "bulan",
+          "image": "moon"
+        },
+        {
+          "en": "star",
+          "id": "bintang",
+          "image": "star"
+        },
+        {
+          "en": "cloud",
+          "id": "awan",
+          "image": "cloud"
+        },
+        {
+          "en": "rain",
+          "id": "hujan",
+          "image": "rain"
+        },
+        {
+          "en": "snow",
+          "id": "salju",
+          "image": "snow"
+        },
+        {
+          "en": "wind",
+          "id": "angin",
+          "image": "wind"
+        },
+        {
+          "en": "thunder",
+          "id": "petir",
+          "image": "thunder"
+        },
+        {
+          "en": "rainbow",
+          "id": "pelangi",
+          "image": "rainbow"
+        },
+        {
+          "en": "fire",
+          "id": "api",
+          "image": "fire"
+        },
+        {
+          "en": "water",
+          "id": "air",
+          "image": "water"
+        },
+        {
+          "en": "tree",
+          "id": "pohon",
+          "image": "tree"
+        },
+        {
+          "en": "flower",
+          "id": "bunga",
+          "image": "flower"
+        },
+        {
+          "en": "grass",
+          "id": "rumput",
+          "image": "grass"
+        },
+        {
+          "en": "leaf",
+          "id": "daun",
+          "image": "leaf"
+        },
+        {
+          "en": "mountain",
+          "id": "gunung",
+          "image": "mountain"
+        },
+        {
+          "en": "volcano",
+          "id": "gunung berapi",
+          "image": "volcano"
+        },
+        {
+          "en": "earth",
+          "id": "bumi",
+          "image": "earth"
+        },
+        {
+          "en": "ocean",
+          "id": "lautan",
+          "image": "ocean"
+        },
+        {
+          "en": "tornado",
+          "id": "angin puting beliung",
+          "image": "tornado"
+        }
+      ]
+    },
+    {
+      "id": "tempat",
+      "name": "Tempat",
+      "words": [
+        {
+          "en": "house",
+          "id": "rumah",
+          "image": "house"
+        },
+        {
+          "en": "school",
+          "id": "sekolah",
+          "image": "school"
+        },
+        {
+          "en": "hospital",
+          "id": "rumah sakit",
+          "image": "hospital"
+        },
+        {
+          "en": "bank",
+          "id": "bank",
+          "image": "bank"
+        },
+        {
+          "en": "market",
+          "id": "pasar",
+          "image": "market"
+        },
+        {
+          "en": "hotel",
+          "id": "hotel",
+          "image": "hotel"
+        },
+        {
+          "en": "church",
+          "id": "gereja",
+          "image": "church"
+        },
+        {
+          "en": "mosque",
+          "id": "masjid",
+          "image": "mosque"
+        },
+        {
+          "en": "castle",
+          "id": "kastil",
+          "image": "castle"
+        },
+        {
+          "en": "office",
+          "id": "kantor",
+          "image": "office"
+        },
+        {
+          "en": "factory",
+          "id": "pabrik",
+          "image": "factory"
+        },
+        {
+          "en": "station",
+          "id": "stasiun",
+          "image": "station"
+        },
+        {
+          "en": "library",
+          "id": "perpustakaan",
+          "image": "library"
+        },
+        {
+          "en": "restaurant",
+          "id": "restoran",
+          "image": "restaurant"
+        },
+        {
+          "en": "beach",
+          "id": "pantai",
+          "image": "beach"
+        },
+        {
+          "en": "island",
+          "id": "pulau",
+          "image": "island"
+        },
+        {
+          "en": "desert",
+          "id": "gurun",
+          "image": "desert"
+        },
+        {
+          "en": "forest",
+          "id": "hutan",
+          "image": "forest"
+        },
+        {
+          "en": "stadium",
+          "id": "stadion",
+          "image": "stadium"
+        },
+        {
+          "en": "zoo",
+          "id": "kebun binatang",
+          "image": "zoo"
+        }
+      ]
+    },
+    {
+      "id": "pakaian",
+      "name": "Pakaian",
+      "words": [
+        {
+          "en": "tshirt",
+          "id": "kaos",
+          "image": "tshirt"
+        },
+        {
+          "en": "jeans",
+          "id": "celana jeans",
+          "image": "jeans"
+        },
+        {
+          "en": "dress",
+          "id": "gaun",
+          "image": "dress"
+        },
+        {
+          "en": "kimono",
+          "id": "kimono",
+          "image": "kimono"
+        },
+        {
+          "en": "bikini",
+          "id": "bikini",
+          "image": "bikini"
+        },
+        {
+          "en": "shorts",
+          "id": "celana pendek",
+          "image": "shorts"
+        },
+        {
+          "en": "socks",
+          "id": "kaus kaki",
+          "image": "socks"
+        },
+        {
+          "en": "gloves",
+          "id": "sarung tangan",
+          "image": "gloves"
+        },
+        {
+          "en": "scarf",
+          "id": "syal",
+          "image": "scarf"
+        },
+        {
+          "en": "cap",
+          "id": "topi",
+          "image": "cap"
+        },
+        {
+          "en": "tie",
+          "id": "dasi",
+          "image": "tie"
+        },
+        {
+          "en": "coat",
+          "id": "mantel",
+          "image": "coat"
+        },
+        {
+          "en": "boot",
+          "id": "sepatu bot",
+          "image": "boot"
+        },
+        {
+          "en": "sandal",
+          "id": "sandal",
+          "image": "sandal"
+        },
+        {
+          "en": "highheel",
+          "id": "sepatu hak tinggi",
+          "image": "highheel"
+        },
+        {
+          "en": "crown",
+          "id": "mahkota",
+          "image": "crown"
+        },
+        {
+          "en": "ring",
+          "id": "cincin",
+          "image": "ring"
+        },
+        {
+          "en": "tophat",
+          "id": "topi tinggi",
+          "image": "tophat"
+        },
+        {
+          "en": "handbag",
+          "id": "tas tangan",
+          "image": "handbag"
+        },
+        {
+          "en": "backpack",
+          "id": "ransel",
+          "image": "backpack"
+        }
+      ]
+    },
+    {
+      "id": "tubuh",
+      "name": "Bagian Tubuh",
+      "words": [
+        {
+          "en": "eye",
+          "id": "mata",
+          "image": "eye"
+        },
+        {
+          "en": "ear",
+          "id": "telinga",
+          "image": "ear"
+        },
+        {
+          "en": "nose",
+          "id": "hidung",
+          "image": "nose"
+        },
+        {
+          "en": "mouth",
+          "id": "mulut",
+          "image": "mouth"
+        },
+        {
+          "en": "tongue",
+          "id": "lidah",
+          "image": "tongue"
+        },
+        {
+          "en": "tooth",
+          "id": "gigi",
+          "image": "tooth"
+        },
+        {
+          "en": "bone",
+          "id": "tulang",
+          "image": "bone"
+        },
+        {
+          "en": "brain",
+          "id": "otak",
+          "image": "brain"
+        },
+        {
+          "en": "heart",
+          "id": "jantung",
+          "image": "heart"
+        },
+        {
+          "en": "lungs",
+          "id": "paru-paru",
+          "image": "lungs"
+        },
+        {
+          "en": "hand",
+          "id": "tangan",
+          "image": "hand"
+        },
+        {
+          "en": "foot",
+          "id": "kaki",
+          "image": "foot"
+        },
+        {
+          "en": "leg",
+          "id": "kaki (tungkai)",
+          "image": "leg"
+        },
+        {
+          "en": "arm",
+          "id": "lengan",
+          "image": "arm"
+        },
+        {
+          "en": "finger",
+          "id": "jari",
+          "image": "finger"
+        },
+        {
+          "en": "nail",
+          "id": "kuku",
+          "image": "nail"
+        },
+        {
+          "en": "blood",
+          "id": "darah",
+          "image": "blood"
+        },
+        {
+          "en": "dna",
+          "id": "DNA",
+          "image": "dna"
+        },
+        {
+          "en": "microbe",
+          "id": "kuman",
+          "image": "microbe"
+        },
+        {
+          "en": "paw",
+          "id": "cakar",
+          "image": "paw"
+        }
+      ]
+    },
+    {
+      "id": "olahraga",
+      "name": "Olahraga",
+      "words": [
+        {
+          "en": "soccer",
+          "id": "sepak bola",
+          "image": "soccer"
+        },
+        {
+          "en": "basketball",
+          "id": "bola basket",
+          "image": "basketball"
+        },
+        {
+          "en": "baseball",
+          "id": "bola kasti",
+          "image": "baseball"
+        },
+        {
+          "en": "tennis",
+          "id": "tenis",
+          "image": "tennis"
+        },
+        {
+          "en": "volleyball",
+          "id": "bola voli",
+          "image": "volleyball"
+        },
+        {
+          "en": "badminton",
+          "id": "bulu tangkis",
+          "image": "badminton"
+        },
+        {
+          "en": "golf",
+          "id": "golf",
+          "image": "golf"
+        },
+        {
+          "en": "swimming",
+          "id": "renang",
+          "image": "swimming"
+        },
+        {
+          "en": "running",
+          "id": "lari",
+          "image": "running"
+        },
+        {
+          "en": "cycling",
+          "id": "bersepeda",
+          "image": "cycling"
+        },
+        {
+          "en": "boxing",
+          "id": "tinju",
+          "image": "boxing"
+        },
+        {
+          "en": "wrestling",
+          "id": "gulat",
+          "image": "wrestling"
+        },
+        {
+          "en": "karate",
+          "id": "karate",
+          "image": "karate"
+        },
+        {
+          "en": "weightlifting",
+          "id": "angkat besi",
+          "image": "weightlifting"
+        },
+        {
+          "en": "skiing",
+          "id": "ski",
+          "image": "skiing"
+        },
+        {
+          "en": "surfing",
+          "id": "selancar",
+          "image": "surfing"
+        },
+        {
+          "en": "bowling",
+          "id": "bowling",
+          "image": "bowling"
+        },
+        {
+          "en": "tabletennis",
+          "id": "tenis meja",
+          "image": "tabletennis"
+        },
+        {
+          "en": "fishing",
+          "id": "memancing",
+          "image": "fishing"
+        },
+        {
+          "en": "gymnastics",
+          "id": "senam",
+          "image": "gymnastics"
+        }
+      ]
+    },
+    {
+      "id": "musik",
+      "name": "Musik & Elektronik",
+      "words": [
+        {
+          "en": "guitar",
+          "id": "gitar",
+          "image": "guitar"
+        },
+        {
+          "en": "piano",
+          "id": "piano",
+          "image": "piano"
+        },
+        {
+          "en": "violin",
+          "id": "biola",
+          "image": "violin"
+        },
+        {
+          "en": "trumpet",
+          "id": "terompet",
+          "image": "trumpet"
+        },
+        {
+          "en": "saxophone",
+          "id": "saksofon",
+          "image": "saxophone"
+        },
+        {
+          "en": "drum",
+          "id": "drum",
+          "image": "drum"
+        },
+        {
+          "en": "microphone",
+          "id": "mikrofon",
+          "image": "microphone"
+        },
+        {
+          "en": "headphones",
+          "id": "headphone",
+          "image": "headphones"
+        },
+        {
+          "en": "radio",
+          "id": "radio",
+          "image": "radio"
+        },
+        {
+          "en": "bell",
+          "id": "lonceng",
+          "image": "bell"
+        },
+        {
+          "en": "note",
+          "id": "not balok",
+          "image": "note"
+        },
+        {
+          "en": "notes",
+          "id": "nada",
+          "image": "notes"
+        },
+        {
+          "en": "speaker",
+          "id": "pengeras suara",
+          "image": "speaker"
+        },
+        {
+          "en": "cd",
+          "id": "CD",
+          "image": "cd"
+        },
+        {
+          "en": "camera",
+          "id": "kamera",
+          "image": "camera"
+        },
+        {
+          "en": "tv",
+          "id": "televisi",
+          "image": "tv"
+        },
+        {
+          "en": "computer",
+          "id": "komputer",
+          "image": "computer"
+        },
+        {
+          "en": "gamepad",
+          "id": "stik game",
+          "image": "gamepad"
+        },
+        {
+          "en": "videocamera",
+          "id": "kamera video",
+          "image": "videocamera"
+        },
+        {
+          "en": "battery",
+          "id": "baterai",
+          "image": "battery"
+        }
+      ]
+    },
+    {
+      "id": "hewanlaut",
+      "name": "Hewan Laut & Serangga",
+      "words": [
+        {
+          "en": "ant",
+          "id": "semut",
+          "image": "ant"
+        },
+        {
+          "en": "spider",
+          "id": "laba-laba",
+          "image": "spider"
+        },
+        {
+          "en": "scorpion",
+          "id": "kalajengking",
+          "image": "scorpion"
+        },
+        {
+          "en": "mosquito",
+          "id": "nyamuk",
+          "image": "mosquito"
+        },
+        {
+          "en": "snail",
+          "id": "siput",
+          "image": "snail"
+        },
+        {
+          "en": "worm",
+          "id": "cacing",
+          "image": "worm"
+        },
+        {
+          "en": "crab",
+          "id": "kepiting",
+          "image": "crab"
+        },
+        {
+          "en": "lobster",
+          "id": "lobster",
+          "image": "lobster"
+        },
+        {
+          "en": "shrimp",
+          "id": "udang",
+          "image": "shrimp"
+        },
+        {
+          "en": "octopus",
+          "id": "gurita",
+          "image": "octopus"
+        },
+        {
+          "en": "squid",
+          "id": "cumi-cumi",
+          "image": "squid"
+        },
+        {
+          "en": "jellyfish",
+          "id": "ubur-ubur",
+          "image": "jellyfish"
+        },
+        {
+          "en": "coral",
+          "id": "karang",
+          "image": "coral"
+        },
+        {
+          "en": "clam",
+          "id": "kerang",
+          "image": "clam"
+        },
+        {
+          "en": "seal",
+          "id": "anjing laut",
+          "image": "seal"
+        },
+        {
+          "en": "whale",
+          "id": "paus",
+          "image": "whale"
+        },
+        {
+          "en": "shark",
+          "id": "hiu",
+          "image": "shark"
+        },
+        {
+          "en": "crocodile",
+          "id": "buaya",
+          "image": "crocodile"
+        },
+        {
+          "en": "hippo",
+          "id": "kuda nil",
+          "image": "hippo"
+        },
+        {
+          "en": "flamingo",
+          "id": "flamingo",
+          "image": "flamingo"
+        }
+      ]
     }
   ]
 }
