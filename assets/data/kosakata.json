@@ -4,130 +4,842 @@
       "id": "hewan",
       "name": "Hewan",
       "words": [
-        { "en": "cat", "id": "kucing", "image": "cat" },
-        { "en": "dog", "id": "anjing", "image": "dog" },
-        { "en": "bird", "id": "burung", "image": "bird" },
-        { "en": "fish", "id": "ikan", "image": "fish" },
-        { "en": "horse", "id": "kuda", "image": "horse" },
-        { "en": "cow", "id": "sapi", "image": "cow" },
-        { "en": "chicken", "id": "ayam", "image": "chicken" },
-        { "en": "duck", "id": "bebek", "image": "duck" },
-        { "en": "goat", "id": "kambing", "image": "goat" },
-        { "en": "sheep", "id": "domba", "image": "sheep" },
-        { "en": "tiger", "id": "harimau", "image": "tiger" },
-        { "en": "lion", "id": "singa", "image": "lion" },
-        { "en": "elephant", "id": "gajah", "image": "elephant" },
-        { "en": "monkey", "id": "monyet", "image": "monkey" },
-        { "en": "rabbit", "id": "kelinci", "image": "rabbit" },
-        { "en": "snake", "id": "ular", "image": "snake" },
-        { "en": "turtle", "id": "kura-kura", "image": "turtle" },
-        { "en": "frog", "id": "katak", "image": "frog" },
-        { "en": "butterfly", "id": "kupu-kupu", "image": "butterfly" },
-        { "en": "bee", "id": "lebah", "image": "bee" }
+        {
+          "en": "cat",
+          "id": "kucing",
+          "image": "cat"
+        },
+        {
+          "en": "dog",
+          "id": "anjing",
+          "image": "dog"
+        },
+        {
+          "en": "bird",
+          "id": "burung",
+          "image": "bird"
+        },
+        {
+          "en": "fish",
+          "id": "ikan",
+          "image": "fish"
+        },
+        {
+          "en": "horse",
+          "id": "kuda",
+          "image": "horse"
+        },
+        {
+          "en": "cow",
+          "id": "sapi",
+          "image": "cow"
+        },
+        {
+          "en": "chicken",
+          "id": "ayam",
+          "image": "chicken"
+        },
+        {
+          "en": "duck",
+          "id": "bebek",
+          "image": "duck"
+        },
+        {
+          "en": "goat",
+          "id": "kambing",
+          "image": "goat"
+        },
+        {
+          "en": "sheep",
+          "id": "domba",
+          "image": "sheep"
+        },
+        {
+          "en": "tiger",
+          "id": "harimau",
+          "image": "tiger"
+        },
+        {
+          "en": "lion",
+          "id": "singa",
+          "image": "lion"
+        },
+        {
+          "en": "elephant",
+          "id": "gajah",
+          "image": "elephant"
+        },
+        {
+          "en": "monkey",
+          "id": "monyet",
+          "image": "monkey"
+        },
+        {
+          "en": "rabbit",
+          "id": "kelinci",
+          "image": "rabbit"
+        },
+        {
+          "en": "snake",
+          "id": "ular",
+          "image": "snake"
+        },
+        {
+          "en": "turtle",
+          "id": "kura-kura",
+          "image": "turtle"
+        },
+        {
+          "en": "frog",
+          "id": "katak",
+          "image": "frog"
+        },
+        {
+          "en": "butterfly",
+          "id": "kupu-kupu",
+          "image": "butterfly"
+        },
+        {
+          "en": "bee",
+          "id": "lebah",
+          "image": "bee"
+        },
+        {
+          "en": "pig",
+          "id": "babi",
+          "image": "pig"
+        },
+        {
+          "en": "mouse",
+          "id": "tikus",
+          "image": "mouse"
+        },
+        {
+          "en": "bear",
+          "id": "beruang",
+          "image": "bear"
+        },
+        {
+          "en": "wolf",
+          "id": "serigala",
+          "image": "wolf"
+        },
+        {
+          "en": "fox",
+          "id": "rubah",
+          "image": "fox"
+        },
+        {
+          "en": "deer",
+          "id": "rusa",
+          "image": "deer"
+        },
+        {
+          "en": "owl",
+          "id": "burung hantu",
+          "image": "owl"
+        },
+        {
+          "en": "eagle",
+          "id": "elang",
+          "image": "eagle"
+        },
+        {
+          "en": "penguin",
+          "id": "pinguin",
+          "image": "penguin"
+        },
+        {
+          "en": "dolphin",
+          "id": "lumba-lumba",
+          "image": "dolphin"
+        }
       ]
     },
     {
       "id": "buah",
       "name": "Buah",
       "words": [
-        { "en": "apple", "id": "apel", "image": "apple" },
-        { "en": "banana", "id": "pisang", "image": "banana" },
-        { "en": "mango", "id": "mangga", "image": "mango" },
-        { "en": "orange", "id": "jeruk", "image": "orange" },
-        { "en": "grape", "id": "anggur", "image": "grape" },
-        { "en": "watermelon", "id": "semangka", "image": "watermelon" },
-        { "en": "papaya", "id": "pepaya", "image": "papaya" },
-        { "en": "pineapple", "id": "nanas", "image": "pineapple" },
-        { "en": "strawberry", "id": "stroberi", "image": "strawberry" },
-        { "en": "durian", "id": "durian", "image": "durian" },
-        { "en": "coconut", "id": "kelapa", "image": "coconut" },
-        { "en": "guava", "id": "jambu", "image": "guava" },
-        { "en": "avocado", "id": "alpukat", "image": "avocado" },
-        { "en": "cherry", "id": "ceri", "image": "cherry" },
-        { "en": "lemon", "id": "lemon", "image": "lemon" },
-        { "en": "lime", "id": "jeruk nipis", "image": "lime" },
-        { "en": "pear", "id": "pir", "image": "pear" },
-        { "en": "melon", "id": "melon", "image": "melon" },
-        { "en": "sapodilla", "id": "sawo", "image": "sapodilla" },
-        { "en": "rambutan", "id": "rambutan", "image": "rambutan" }
+        {
+          "en": "apple",
+          "id": "apel",
+          "image": "apple"
+        },
+        {
+          "en": "banana",
+          "id": "pisang",
+          "image": "banana"
+        },
+        {
+          "en": "mango",
+          "id": "mangga",
+          "image": "mango"
+        },
+        {
+          "en": "orange",
+          "id": "jeruk",
+          "image": "orange"
+        },
+        {
+          "en": "grape",
+          "id": "anggur",
+          "image": "grape"
+        },
+        {
+          "en": "watermelon",
+          "id": "semangka",
+          "image": "watermelon"
+        },
+        {
+          "en": "papaya",
+          "id": "pepaya",
+          "image": "papaya"
+        },
+        {
+          "en": "pineapple",
+          "id": "nanas",
+          "image": "pineapple"
+        },
+        {
+          "en": "strawberry",
+          "id": "stroberi",
+          "image": "strawberry"
+        },
+        {
+          "en": "durian",
+          "id": "durian",
+          "image": "durian"
+        },
+        {
+          "en": "coconut",
+          "id": "kelapa",
+          "image": "coconut"
+        },
+        {
+          "en": "guava",
+          "id": "jambu",
+          "image": "guava"
+        },
+        {
+          "en": "avocado",
+          "id": "alpukat",
+          "image": "avocado"
+        },
+        {
+          "en": "cherry",
+          "id": "ceri",
+          "image": "cherry"
+        },
+        {
+          "en": "lemon",
+          "id": "lemon",
+          "image": "lemon"
+        },
+        {
+          "en": "lime",
+          "id": "jeruk nipis",
+          "image": "lime"
+        },
+        {
+          "en": "pear",
+          "id": "pir",
+          "image": "pear"
+        },
+        {
+          "en": "melon",
+          "id": "melon",
+          "image": "melon"
+        },
+        {
+          "en": "sapodilla",
+          "id": "sawo",
+          "image": "sapodilla"
+        },
+        {
+          "en": "rambutan",
+          "id": "rambutan",
+          "image": "rambutan"
+        }
       ]
     },
     {
       "id": "benda",
       "name": "Benda",
       "words": [
-        { "en": "book", "id": "buku", "image": "book" },
-        { "en": "chair", "id": "kursi", "image": "chair" },
-        { "en": "table", "id": "meja", "image": "table" },
-        { "en": "door", "id": "pintu", "image": "door" },
-        { "en": "window", "id": "jendela", "image": "window" },
-        { "en": "pen", "id": "pulpen", "image": "pen" },
-        { "en": "pencil", "id": "pensil", "image": "pencil" },
-        { "en": "bag", "id": "tas", "image": "bag" },
-        { "en": "shirt", "id": "kemeja", "image": "shirt" },
-        { "en": "shoe", "id": "sepatu", "image": "shoe" },
-        { "en": "hat", "id": "topi", "image": "hat" },
-        { "en": "clock", "id": "jam", "image": "clock" },
-        { "en": "phone", "id": "telepon", "image": "phone" },
-        { "en": "lamp", "id": "lampu", "image": "lamp" },
-        { "en": "bed", "id": "tempat tidur", "image": "bed" },
-        { "en": "cup", "id": "cangkir", "image": "cup" },
-        { "en": "plate", "id": "piring", "image": "plate" },
-        { "en": "spoon", "id": "sendok", "image": "spoon" },
-        { "en": "key", "id": "kunci", "image": "key" },
-        { "en": "umbrella", "id": "payung", "image": "umbrella" }
+        {
+          "en": "book",
+          "id": "buku",
+          "image": "book"
+        },
+        {
+          "en": "chair",
+          "id": "kursi",
+          "image": "chair"
+        },
+        {
+          "en": "table",
+          "id": "meja",
+          "image": "table"
+        },
+        {
+          "en": "door",
+          "id": "pintu",
+          "image": "door"
+        },
+        {
+          "en": "window",
+          "id": "jendela",
+          "image": "window"
+        },
+        {
+          "en": "pen",
+          "id": "pulpen",
+          "image": "pen"
+        },
+        {
+          "en": "pencil",
+          "id": "pensil",
+          "image": "pencil"
+        },
+        {
+          "en": "bag",
+          "id": "tas",
+          "image": "bag"
+        },
+        {
+          "en": "shirt",
+          "id": "kemeja",
+          "image": "shirt"
+        },
+        {
+          "en": "shoe",
+          "id": "sepatu",
+          "image": "shoe"
+        },
+        {
+          "en": "hat",
+          "id": "topi",
+          "image": "hat"
+        },
+        {
+          "en": "clock",
+          "id": "jam",
+          "image": "clock"
+        },
+        {
+          "en": "phone",
+          "id": "telepon",
+          "image": "phone"
+        },
+        {
+          "en": "lamp",
+          "id": "lampu",
+          "image": "lamp"
+        },
+        {
+          "en": "bed",
+          "id": "tempat tidur",
+          "image": "bed"
+        },
+        {
+          "en": "cup",
+          "id": "cangkir",
+          "image": "cup"
+        },
+        {
+          "en": "plate",
+          "id": "piring",
+          "image": "plate"
+        },
+        {
+          "en": "spoon",
+          "id": "sendok",
+          "image": "spoon"
+        },
+        {
+          "en": "key",
+          "id": "kunci",
+          "image": "key"
+        },
+        {
+          "en": "umbrella",
+          "id": "payung",
+          "image": "umbrella"
+        },
+        {
+          "en": "scissors",
+          "id": "gunting",
+          "image": "scissors"
+        },
+        {
+          "en": "mirror",
+          "id": "cermin",
+          "image": "mirror"
+        },
+        {
+          "en": "towel",
+          "id": "handuk",
+          "image": "towel"
+        },
+        {
+          "en": "soap",
+          "id": "sabun",
+          "image": "soap"
+        },
+        {
+          "en": "toothbrush",
+          "id": "sikat gigi",
+          "image": "toothbrush"
+        },
+        {
+          "en": "comb",
+          "id": "sisir",
+          "image": "comb"
+        },
+        {
+          "en": "wallet",
+          "id": "dompet",
+          "image": "wallet"
+        },
+        {
+          "en": "glasses",
+          "id": "kacamata",
+          "image": "glasses"
+        },
+        {
+          "en": "ruler",
+          "id": "penggaris",
+          "image": "ruler"
+        },
+        {
+          "en": "bottle",
+          "id": "botol",
+          "image": "bottle"
+        }
       ]
     },
     {
       "id": "angka",
       "name": "Angka",
       "words": [
-        { "en": "one", "id": "satu", "image": "one" },
-        { "en": "two", "id": "dua", "image": "two" },
-        { "en": "three", "id": "tiga", "image": "three" },
-        { "en": "four", "id": "empat", "image": "four" },
-        { "en": "five", "id": "lima", "image": "five" },
-        { "en": "six", "id": "enam", "image": "six" },
-        { "en": "seven", "id": "tujuh", "image": "seven" },
-        { "en": "eight", "id": "delapan", "image": "eight" },
-        { "en": "nine", "id": "sembilan", "image": "nine" },
-        { "en": "ten", "id": "sepuluh", "image": "ten" },
-        { "en": "eleven", "id": "sebelas", "image": "eleven" },
-        { "en": "twelve", "id": "dua belas", "image": "twelve" },
-        { "en": "thirteen", "id": "tiga belas", "image": "thirteen" },
-        { "en": "fourteen", "id": "empat belas", "image": "fourteen" },
-        { "en": "fifteen", "id": "lima belas", "image": "fifteen" },
-        { "en": "sixteen", "id": "enam belas", "image": "sixteen" },
-        { "en": "seventeen", "id": "tujuh belas", "image": "seventeen" },
-        { "en": "eighteen", "id": "delapan belas", "image": "eighteen" },
-        { "en": "nineteen", "id": "sembilan belas", "image": "nineteen" },
-        { "en": "twenty", "id": "dua puluh", "image": "twenty" }
+        {
+          "en": "one",
+          "id": "satu",
+          "image": "one"
+        },
+        {
+          "en": "two",
+          "id": "dua",
+          "image": "two"
+        },
+        {
+          "en": "three",
+          "id": "tiga",
+          "image": "three"
+        },
+        {
+          "en": "four",
+          "id": "empat",
+          "image": "four"
+        },
+        {
+          "en": "five",
+          "id": "lima",
+          "image": "five"
+        },
+        {
+          "en": "six",
+          "id": "enam",
+          "image": "six"
+        },
+        {
+          "en": "seven",
+          "id": "tujuh",
+          "image": "seven"
+        },
+        {
+          "en": "eight",
+          "id": "delapan",
+          "image": "eight"
+        },
+        {
+          "en": "nine",
+          "id": "sembilan",
+          "image": "nine"
+        },
+        {
+          "en": "ten",
+          "id": "sepuluh",
+          "image": "ten"
+        },
+        {
+          "en": "eleven",
+          "id": "sebelas",
+          "image": "eleven"
+        },
+        {
+          "en": "twelve",
+          "id": "dua belas",
+          "image": "twelve"
+        },
+        {
+          "en": "thirteen",
+          "id": "tiga belas",
+          "image": "thirteen"
+        },
+        {
+          "en": "fourteen",
+          "id": "empat belas",
+          "image": "fourteen"
+        },
+        {
+          "en": "fifteen",
+          "id": "lima belas",
+          "image": "fifteen"
+        },
+        {
+          "en": "sixteen",
+          "id": "enam belas",
+          "image": "sixteen"
+        },
+        {
+          "en": "seventeen",
+          "id": "tujuh belas",
+          "image": "seventeen"
+        },
+        {
+          "en": "eighteen",
+          "id": "delapan belas",
+          "image": "eighteen"
+        },
+        {
+          "en": "nineteen",
+          "id": "sembilan belas",
+          "image": "nineteen"
+        },
+        {
+          "en": "twenty",
+          "id": "dua puluh",
+          "image": "twenty"
+        }
       ]
     },
     {
       "id": "warna",
       "name": "Warna",
       "words": [
-        { "en": "red", "id": "merah", "image": "red" },
-        { "en": "blue", "id": "biru", "image": "blue" },
-        { "en": "green", "id": "hijau", "image": "green" },
-        { "en": "yellow", "id": "kuning", "image": "yellow" },
-        { "en": "black", "id": "hitam", "image": "black" },
-        { "en": "white", "id": "putih", "image": "white" },
-        { "en": "orange", "id": "oranye", "image": "orange" },
-        { "en": "purple", "id": "ungu", "image": "purple" },
-        { "en": "pink", "id": "merah muda", "image": "pink" },
-        { "en": "brown", "id": "coklat", "image": "brown" },
-        { "en": "gray", "id": "abu-abu", "image": "gray" },
-        { "en": "gold", "id": "emas", "image": "gold" },
-        { "en": "silver", "id": "perak", "image": "silver" },
-        { "en": "navy", "id": "biru tua", "image": "navy" },
-        { "en": "beige", "id": "krem", "image": "beige" },
-        { "en": "turquoise", "id": "toska", "image": "turquoise" },
-        { "en": "maroon", "id": "merah marun", "image": "maroon" },
-        { "en": "olive", "id": "zaitun", "image": "olive" },
-        { "en": "indigo", "id": "nila", "image": "indigo" },
-        { "en": "violet", "id": "violet", "image": "violet" }
+        {
+          "en": "red",
+          "id": "merah",
+          "image": "red"
+        },
+        {
+          "en": "blue",
+          "id": "biru",
+          "image": "blue"
+        },
+        {
+          "en": "green",
+          "id": "hijau",
+          "image": "green"
+        },
+        {
+          "en": "yellow",
+          "id": "kuning",
+          "image": "yellow"
+        },
+        {
+          "en": "black",
+          "id": "hitam",
+          "image": "black"
+        },
+        {
+          "en": "white",
+          "id": "putih",
+          "image": "white"
+        },
+        {
+          "en": "orange",
+          "id": "oranye",
+          "image": "orange"
+        },
+        {
+          "en": "purple",
+          "id": "ungu",
+          "image": "purple"
+        },
+        {
+          "en": "pink",
+          "id": "merah muda",
+          "image": "pink"
+        },
+        {
+          "en": "brown",
+          "id": "coklat",
+          "image": "brown"
+        },
+        {
+          "en": "gray",
+          "id": "abu-abu",
+          "image": "gray"
+        },
+        {
+          "en": "gold",
+          "id": "emas",
+          "image": "gold"
+        },
+        {
+          "en": "silver",
+          "id": "perak",
+          "image": "silver"
+        },
+        {
+          "en": "navy",
+          "id": "biru tua",
+          "image": "navy"
+        },
+        {
+          "en": "beige",
+          "id": "krem",
+          "image": "beige"
+        },
+        {
+          "en": "turquoise",
+          "id": "toska",
+          "image": "turquoise"
+        },
+        {
+          "en": "maroon",
+          "id": "merah marun",
+          "image": "maroon"
+        },
+        {
+          "en": "olive",
+          "id": "zaitun",
+          "image": "olive"
+        },
+        {
+          "en": "indigo",
+          "id": "nila",
+          "image": "indigo"
+        },
+        {
+          "en": "violet",
+          "id": "violet",
+          "image": "violet"
+        }
+      ]
+    },
+    {
+      "id": "kendaraan",
+      "name": "Kendaraan",
+      "words": [
+        {
+          "en": "car",
+          "id": "mobil",
+          "image": "car"
+        },
+        {
+          "en": "bus",
+          "id": "bis",
+          "image": "bus"
+        },
+        {
+          "en": "train",
+          "id": "kereta",
+          "image": "train"
+        },
+        {
+          "en": "bicycle",
+          "id": "sepeda",
+          "image": "bicycle"
+        },
+        {
+          "en": "airplane",
+          "id": "pesawat",
+          "image": "airplane"
+        },
+        {
+          "en": "boat",
+          "id": "perahu",
+          "image": "boat"
+        },
+        {
+          "en": "motorcycle",
+          "id": "sepeda motor",
+          "image": "motorcycle"
+        },
+        {
+          "en": "truck",
+          "id": "truk",
+          "image": "truck"
+        },
+        {
+          "en": "ship",
+          "id": "kapal",
+          "image": "ship"
+        },
+        {
+          "en": "helicopter",
+          "id": "helikopter",
+          "image": "helicopter"
+        },
+        {
+          "en": "taxi",
+          "id": "taksi",
+          "image": "taxi"
+        },
+        {
+          "en": "ambulance",
+          "id": "ambulans",
+          "image": "ambulance"
+        },
+        {
+          "en": "rocket",
+          "id": "roket",
+          "image": "rocket"
+        },
+        {
+          "en": "tram",
+          "id": "trem",
+          "image": "tram"
+        },
+        {
+          "en": "scooter",
+          "id": "skuter",
+          "image": "scooter"
+        },
+        {
+          "en": "firetruck",
+          "id": "mobil pemadam",
+          "image": "firetruck"
+        },
+        {
+          "en": "policecar",
+          "id": "mobil polisi",
+          "image": "policecar"
+        },
+        {
+          "en": "subway",
+          "id": "kereta bawah tanah",
+          "image": "subway"
+        },
+        {
+          "en": "skateboard",
+          "id": "papan luncur",
+          "image": "skateboard"
+        },
+        {
+          "en": "canoe",
+          "id": "kano",
+          "image": "canoe"
+        }
+      ]
+    },
+    {
+      "id": "makanan",
+      "name": "Makanan",
+      "words": [
+        {
+          "en": "rice",
+          "id": "nasi",
+          "image": "rice"
+        },
+        {
+          "en": "bread",
+          "id": "roti",
+          "image": "bread"
+        },
+        {
+          "en": "egg",
+          "id": "telur",
+          "image": "egg"
+        },
+        {
+          "en": "milk",
+          "id": "susu",
+          "image": "milk"
+        },
+        {
+          "en": "cheese",
+          "id": "keju",
+          "image": "cheese"
+        },
+        {
+          "en": "cake",
+          "id": "kue",
+          "image": "cake"
+        },
+        {
+          "en": "icecream",
+          "id": "es krim",
+          "image": "icecream"
+        },
+        {
+          "en": "pizza",
+          "id": "pizza",
+          "image": "pizza"
+        },
+        {
+          "en": "noodle",
+          "id": "mie",
+          "image": "noodle"
+        },
+        {
+          "en": "soup",
+          "id": "sup",
+          "image": "soup"
+        },
+        {
+          "en": "meat",
+          "id": "daging",
+          "image": "meat"
+        },
+        {
+          "en": "candy",
+          "id": "permen",
+          "image": "candy"
+        },
+        {
+          "en": "chocolate",
+          "id": "cokelat",
+          "image": "chocolate"
+        },
+        {
+          "en": "cookie",
+          "id": "kue kering",
+          "image": "cookie"
+        },
+        {
+          "en": "sandwich",
+          "id": "roti lapis",
+          "image": "sandwich"
+        },
+        {
+          "en": "salad",
+          "id": "salad",
+          "image": "salad"
+        },
+        {
+          "en": "friedchicken",
+          "id": "ayam goreng",
+          "image": "friedchicken"
+        },
+        {
+          "en": "donut",
+          "id": "donat",
+          "image": "donut"
+        },
+        {
+          "en": "popcorn",
+          "id": "popcorn",
+          "image": "popcorn"
+        },
+        {
+          "en": "hotdog",
+          "id": "sosis",
+          "image": "hotdog"
+        }
       ]
     }
   ]

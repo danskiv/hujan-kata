@@ -18,7 +18,7 @@ Game edukasi belajar Bahasa Inggris. Gambar + arti Bahasa Indonesia turun pelan 
 
 ## Fitur
 
-- 🖼️ 100 kosakata (Hewan, Buah, Benda, Angka, Warna)
+- 🖼️ **160 kosakata** (Hewan, Buah, Benda, Angka, Warna, Kendaraan, Makanan)
 - 🔤 Hint bertahap (jumlah huruf → huruf depan → huruf depan+belakang)
 - 🎤 Mode ketik ATAU ngomong
 - 💯 Leaderboard lokal (top 10)

@@ -6,7 +6,7 @@ Semua aset di project ini **bebas lisensi / original**. Dokumentasi ini penting 
 
 **Sumber: OpenMoji** (https://openmoji.org) — lisensi **CC BY-SA 4.0**
 - Diunduh dari `hfg-gmuend/openmoji` (folder `color/618x618/`)
-- 99 PNG emoji mewakili 100 kosakata
+- 159 PNG emoji mewakili 160 kosakata (7 kategori)
 - **Kredit wajib** (CC BY-SA): "Emoji dari OpenMoji — openmoji.org (CC BY-SA 4.0)"
 - Kredit ini sudah ditulis di halaman About/tentang aplikasi
 
