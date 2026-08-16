@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/kata.dart';
+import '../services/audio_service.dart';
 import '../services/kosakata_service.dart';
 import '../services/speech_service.dart';
 import '../widgets/falling_item.dart';
@@ -30,6 +31,7 @@ class _GameScreenState extends State<GameScreen>
 
   final _speech = SpeechService();
   final _controllerKetik = TextEditingController();
+  final _audio = AudioService();
 
   List<Kata> _daftarKata = [];
   int _indeks = 0;
@@ -93,6 +95,7 @@ class _GameScreenState extends State<GameScreen>
       _gameOver = true;
       _anim.stop();
       _speech.stop();
+      _audio.gameOver();
       Future.microtask(_keGameOver);
     }
   }
@@ -104,6 +107,7 @@ class _GameScreenState extends State<GameScreen>
       _skor += 10;
       _spawnItem();
     });
+    _audio.benar();
   }
 
   void _jawabBenar(String input) {
@@ -114,7 +118,8 @@ class _GameScreenState extends State<GameScreen>
         return;
       }
     }
-    // Salah → tidak ada poin (tapi tidak hilang nyawa; hanya kosong).
+    // Salah → efek suara (tidak hilang nyawa).
+    _audio.salah();
   }
 
   void _mulaiDengar() {
@@ -138,6 +143,7 @@ class _GameScreenState extends State<GameScreen>
     _anim.dispose();
     _controllerKetik.dispose();
     _speech.stop();
+    _audio.dispose();
     super.dispose();
   }
 

@@ -53,6 +53,29 @@ flutter pub get
 flutter run
 ```
 
+### Setup yang perlu dilakukan setelah `flutter create`
+
+**1. AndroidManifest.xml** — tambahkan izin mic + AdMob App ID:
+```xml
+<!-- android/app/src/main/AndroidManifest.xml -->
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+<application ...>
+  <meta-data
+    android:name="com.google.android.gms.ads.APPLICATION_ID"
+    android:value="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY" />
+</application>
+```
+
+**2. AdMob App ID** — ganti `ca-app-pub-...` di atas dengan ID asli dari:
+- https://apps.admob.com → Apps → App ID
+
+**3. Test Ad Unit** — file `lib/services/admob_service.dart` sudah pakai **test ID** Google:
+- `ca-app-pub-3940256099942544/5224354917` (rewarded test)
+- Ganti dengan **Ad Unit ID asli** sebelum rilis
+
+**4. Izin mic** — mode "Ngomong" butuh izin RECORD_AUDIO (sudah di atas)
+
 ## Lisensi Aset
 
 Lihat `assets/CREDITS.md` untuk sumber aset (semua bebas lisensi / original).

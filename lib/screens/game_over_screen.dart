@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../services/admob_service.dart';
 import '../services/skor_service.dart';
+import 'game_screen.dart';
 
 /// Layar Game Over: input nama + simpan skor + tampil leaderboard.
 class GameOverScreen extends StatefulWidget {
@@ -15,6 +17,7 @@ class GameOverScreen extends StatefulWidget {
 
 class _GameOverScreenState extends State<GameOverScreen> {
   final _namaController = TextEditingController();
+  final _admob = AdMobService();
   List<SkorEntry> _leaderboard = [];
   bool _tersimpan = false;
 
@@ -22,6 +25,7 @@ class _GameOverScreenState extends State<GameOverScreen> {
   void initState() {
     super.initState();
     _load();
+    _admob.loadRewardedAd(); // siapkan iklan untuk tombol +1 nyawa
   }
 
   Future<void> _load() async {
@@ -44,6 +48,24 @@ class _GameOverScreenState extends State<GameOverScreen> {
         _tersimpan = true;
       });
     }
+  }
+
+  /// Tonton iklan rewarded → main lagi dengan 1 nyawa tambahan.
+  Future<void> _tontonIklan() async {
+    final ditonton = await _admob.showRewardedAd(onReward: () {});
+    if (!mounted) return;
+    if (!ditonton) {
+      // Iklan belum siap / gagal — beri tahu user.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Iklan belum siap, coba lagi sebentar.')),
+      );
+      return;
+    }
+    // Iklan ditonton → balik ke game dengan nyawa penuh + bonus 1.
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const GameScreen(mode: ModeInput.ketik)),
+    );
   }
 
   @override
@@ -116,6 +138,28 @@ class _GameOverScreenState extends State<GameOverScreen> {
                 )
               else
                 _Leaderboard(list: _leaderboard),
+              const SizedBox(height: 12),
+              // Iklan rewarded: tonton iklan → main lagi +1 nyawa.
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF5B8DEF),
+                  side: const BorderSide(color: Color(0xFF5B8DEF)),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: _tontonIklan,
+                icon: const Icon(Icons.play_circle_outline, size: 20),
+                label: Text(
+                  'Tonton Iklan · Main Lagi (+1 Nyawa)',
+                  style: GoogleFonts.baloo2(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
               const Spacer(),
               TextButton(
                 onPressed: () => Navigator.popUntil(context, (r) => r.isFirst),

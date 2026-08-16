@@ -73,10 +73,37 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '3 nyawa · 100 kata · seru!',
+                  '3 nyawa · 300 kata · seru!',
                   style: GoogleFonts.baloo2(
                     fontSize: 14,
                     color: Colors.white.withValues(alpha: 0.8),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Tombol Tentang (kredit aset — wajib lisensi OpenMoji)
+                TextButton(
+                  onPressed: () => showAboutDialog(
+                    context: context,
+                    applicationName: 'Hujan Kata',
+                    applicationVersion: '1.0.0',
+                    applicationIcon: const Text('🌧️', style: TextStyle(fontSize: 40)),
+                    children: [
+                      Text(
+                        'Game edukasi belajar Bahasa Inggris.\n\n'
+                        'Emoji oleh OpenMoji — openmoji.org (CC BY-SA 4.0)\n'
+                        'Font: Baloo 2 (Google Fonts, OFL)\n'
+                        'Efek suara: original (bebas hak cipta)',
+                        style: GoogleFonts.baloo2(fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'ℹ️ Tentang & Kredit',
+                    style: GoogleFonts.baloo2(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
                   ),
                 ),
               ],
