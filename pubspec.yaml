@@ -1,0 +1,34 @@
+name: hujan_kata
+description: "Hujan Kata — game edukasi belajar Bahasa Inggris (tebak gambar)."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Izin mic + speech recognition (mode ngomong)
+  speech_to_text: ^7.0.0
+  # Simpan skor & leaderboard lokal
+  shared_preferences: ^2.3.0
+  # Iklan AdMob (rewarded + banner)
+  google_mobile_ads: ^5.2.0
+  # Efek suara
+  audioplayers: ^6.1.0
+  # Font dari Google Fonts (gratis)
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/audio/
+    - assets/data/

@@ -1,0 +1,26 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+*.ipr
+*.iws
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kredensial (jika ada)
+.env
+*.key
+*.pem
+
+# Aset audio yang belum final (kalau ada lisensi belum jelas)
+# (comment ini biar gambar & data tetap ter-commit)
