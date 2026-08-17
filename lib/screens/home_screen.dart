@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../widgets/mode_picker.dart';
 import 'game_screen.dart';
 
 /// Layar utama: judul + tombol Mulai.
