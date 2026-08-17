@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Layanan AdMob untuk iklan rewarded ("lihat iklan → +1 nyawa").

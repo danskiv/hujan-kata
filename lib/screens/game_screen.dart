@@ -100,7 +100,7 @@ class _GameScreenState extends State<GameScreen>
     }
   }
 
-  void _jawab(Kata item) {
+  void _jawab(_ItemTurun item) {
     if (!_items.contains(item)) return;
     setState(() {
       _items.remove(item);
@@ -123,9 +123,9 @@ class _GameScreenState extends State<GameScreen>
   }
 
   void _mulaiDengar() {
+    _speech.setErrorHandler((_) => _mulaiDengar()); // retry kalau error
     _speech.listen(
       onResult: (text) => _jawabBenar(text),
-      onError: (_) => _mulaiDengar(), // retry kalau error
     );
   }
 

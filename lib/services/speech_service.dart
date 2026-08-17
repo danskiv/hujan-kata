@@ -5,19 +5,26 @@ import 'package:speech_to_text/speech_to_text.dart';
 class SpeechService {
   final SpeechToText _speech = SpeechToText();
   bool _available = false;
+  void Function(String)? _errorHandler;
 
   bool get available => _available;
 
   /// Inisialisasi mic. Panggil sekali sebelum mulai.
   Future<bool> init() async {
-    _available = await _speech.initialize();
+    _available = await _speech.initialize(
+      onError: (error) => _errorHandler?.call(error.errorMsg),
+    );
     return _available;
+  }
+
+  /// Set handler error global (mis. retry saat error).
+  void setErrorHandler(void Function(String error) handler) {
+    _errorHandler = handler;
   }
 
   /// Mulai mendengarkan. [onResult] dipanggil setiap kali ada kata tertangkap.
   Future<void> listen({
     required void Function(String text) onResult,
-    void Function(String error)? onError,
   }) async {
     if (!_available) return;
     await _speech.listen(
@@ -28,7 +35,6 @@ class SpeechService {
           onResult(result.recognizedWords.trim());
         }
       },
-      onError: (error) => onError?.call(error.errorMsg),
     );
   }
 
