@@ -14,11 +14,11 @@ dependencies:
   # Simpan skor & leaderboard lokal
   shared_preferences: ^2.3.0
   # Iklan AdMob (rewarded + banner)
-  google_mobile_ads: ^5.2.0
+  google_mobile_ads: ^9.0.0
   # Efek suara
   audioplayers: ^6.1.0
   # Font dari Google Fonts (gratis)
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.0
 
 dev_dependencies:
   flutter_test:

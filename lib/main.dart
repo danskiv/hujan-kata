@@ -6,7 +6,7 @@ import 'services/admob_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  AdMobService.init(); // inisialisasi AdMob
+  AdMobService.init();
   runApp(const HujanKataApp());
 }
 
@@ -20,12 +20,14 @@ class HujanKataApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF5B8DEF),
-          brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFF141724),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF10B981),
+          secondary: Color(0xFFF59E0B),
+          surface: Color(0xFF1E2338),
         ),
-        textTheme: GoogleFonts.baloo2TextTheme(
-          ThemeData.light().textTheme,
+        textTheme: GoogleFonts.plusJakartaSansTextTheme(
+          ThemeData.dark().textTheme,
         ),
       ),
       home: const HomeScreen(),

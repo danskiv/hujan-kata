@@ -14,12 +14,15 @@ class AdMobService {
 
   /// Inisialisasi AdMob. Panggil sekali di main().
   static Future<void> init() async {
-    await MobileAds.instance.initialize();
+    if (kIsWeb) return;
+    try {
+      await MobileAds.instance.initialize();
+    } catch (_) {}
   }
 
   /// Muat iklan rewarded (async).
   Future<void> loadRewardedAd() async {
-    if (_isLoading || _rewardedAd != null) return;
+    if (kIsWeb || _isLoading || _rewardedAd != null) return;
     _isLoading = true;
     try {
       await RewardedAd.load(
@@ -44,6 +47,12 @@ class AdMobService {
   /// Tampilkan iklan; panggil [onReward] saat user menonton selesai.
   /// Kembalikan true jika iklan tampil, false jika gagal/tidak siap.
   Future<bool> showRewardedAd({required VoidCallback onReward}) async {
+    if (kIsWeb) {
+      // Di Web/Desktop: langsung beri reward untuk testing gameplay
+      onReward();
+      return true;
+    }
+
     final ad = _rewardedAd;
     if (ad == null) return false;
 

@@ -5,42 +5,58 @@ import '../services/admob_service.dart';
 import '../services/skor_service.dart';
 import 'game_screen.dart';
 
-/// Layar Game Over: input nama + simpan skor + tampil leaderboard.
+/// Layar Game Over: Hasil permainan bergaya Tactile Arcade Scorecard.
 class GameOverScreen extends StatefulWidget {
   final int skor;
+  final int kataTebak;
+  final ModeInput mode;
+  final String? categoryId;
 
-  const GameOverScreen({super.key, required this.skor});
+  const GameOverScreen({
+    super.key,
+    required this.skor,
+    this.kataTebak = 0,
+    this.mode = ModeInput.ketik,
+    this.categoryId,
+  });
 
   @override
   State<GameOverScreen> createState() => _GameOverScreenState();
 }
 
 class _GameOverScreenState extends State<GameOverScreen> {
-  final _namaController = TextEditingController();
-  final _admob = AdMobService();
+  final TextEditingController _namaController = TextEditingController();
+  final AdMobService _admob = AdMobService();
   List<SkorEntry> _leaderboard = [];
   bool _tersimpan = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
-    _admob.loadRewardedAd(); // siapkan iklan untuk tombol +1 nyawa
+    _loadLeaderboard();
+    _admob.loadRewardedAd();
   }
 
-  Future<void> _load() async {
+  Future<void> _loadLeaderboard() async {
     final lb = await SkorService.bacaSkor();
     if (mounted) setState(() => _leaderboard = lb);
   }
 
-  Future<void> _simpan() async {
+  Future<void> _simpanSkor() async {
     final nama = _namaController.text.trim();
     if (nama.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tulis nama dulu ya!')),
+        SnackBar(
+          content: Text(
+            'Tulis nama kamu dulu ya! 😊',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+          ),
+          backgroundColor: const Color(0xFF1E2338),
+        ),
       );
       return;
     }
+
     final lb = await SkorService.simpanSkor(nama, widget.skor);
     if (mounted) {
       setState(() {
@@ -50,129 +66,306 @@ class _GameOverScreenState extends State<GameOverScreen> {
     }
   }
 
-  /// Tonton iklan rewarded → main lagi dengan 1 nyawa tambahan.
   Future<void> _tontonIklan() async {
     final ditonton = await _admob.showRewardedAd(onReward: () {});
     if (!mounted) return;
+
     if (!ditonton) {
-      // Iklan belum siap / gagal — beri tahu user.
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Iklan belum siap, coba lagi sebentar.')),
+        SnackBar(
+          content: Text(
+            'Iklan belum siap, coba lagi sebentar ya! 🙏',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+          ),
+          backgroundColor: const Color(0xFF1E2338),
+        ),
       );
       return;
     }
-    // Iklan ditonton → balik ke game dengan nyawa penuh + bonus 1.
+
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const GameScreen(mode: ModeInput.ketik)),
+      MaterialPageRoute(
+        builder: (_) => GameScreen(
+          mode: widget.mode,
+          categoryId: widget.categoryId,
+        ),
+      ),
     );
+  }
+
+  String _getRankBadge() {
+    if (widget.skor >= 200) return '🏆 Master Kata';
+    if (widget.skor >= 100) return '🥇 Juara Emas';
+    if (widget.skor >= 50) return '🥈 Juara Perak';
+    return '🥉 Juara Perunggu';
+  }
+
+  @override
+  void dispose() {
+    _namaController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF0FF),
+      backgroundColor: const Color(0xFF141724),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const Spacer(),
-              const Text('🏁', style: TextStyle(fontSize: 64)),
-              const SizedBox(height: 8),
-              Text(
-                'GAME OVER',
-                style: GoogleFonts.baloo2(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF3B5BA5),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Skor kamu: ${widget.skor}',
-                style: GoogleFonts.baloo2(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF5B8DEF),
-                ),
-              ),
-              const SizedBox(height: 24),
-              if (!_tersimpan)
-                TextField(
-                  controller: _namaController,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _simpan(),
-                  decoration: InputDecoration(
-                    hintText: 'Tulis nama kamu…',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                )
-              else
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('🏁', style: TextStyle(fontSize: 54)),
                 const SizedBox(height: 8),
-              const SizedBox(height: 12),
-              if (!_tersimpan)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B5BA5),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+                Text(
+                  'PERMAINAN SELESAI',
+                  style: GoogleFonts.fredoka(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
                   ),
-                  onPressed: _simpan,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFF59E0B)),
+                  ),
                   child: Text(
-                    'SIMPAN SKOR',
-                    style: GoogleFonts.baloo2(
+                    _getRankBadge(),
+                    style: GoogleFonts.fredoka(
                       fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFF59E0B),
                     ),
                   ),
-                )
-              else
-                _Leaderboard(list: _leaderboard),
-              const SizedBox(height: 12),
-              // Iklan rewarded: tonton iklan → main lagi +1 nyawa.
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF5B8DEF),
-                  side: const BorderSide(color: Color(0xFF5B8DEF)),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
+                ),
+                const SizedBox(height: 20),
+
+                // Kartu Skor Utama Tactile
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2338),
                     borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFF333D5E), width: 1.5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        offset: Offset(0, 5),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'TOTAL SKOR KAMU',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF94A3B8),
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${widget.skor}',
+                        style: GoogleFonts.fredoka(
+                          fontSize: 56,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFFF59E0B),
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '🎯 ${widget.kataTebak} kata berhasil ditebak',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                onPressed: _tontonIklan,
-                icon: const Icon(Icons.play_circle_outline, size: 20),
-                label: Text(
-                  'Tonton Iklan · Main Lagi (+1 Nyawa)',
-                  style: GoogleFonts.baloo2(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                const SizedBox(height: 20),
+
+                // Form Input Nama & Leaderboard
+                if (!_tersimpan) ...[
+                  TextField(
+                    controller: _namaController,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _simpanSkor(),
+                    style: GoogleFonts.fredoka(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Ketik nama kamu untuk papan skor...',
+                      hintStyle: GoogleFonts.fredoka(
+                        fontSize: 15,
+                        color: const Color(0xFF64748B),
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFF1E2338),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide:
+                            const BorderSide(color: Color(0xFF333D5E), width: 1.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide:
+                            const BorderSide(color: Color(0xFF333D5E), width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide:
+                            const BorderSide(color: Color(0xFF10B981), width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.check_circle_rounded,
+                            color: Color(0xFF10B981)),
+                        onPressed: _simpanSkor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: _simpanSkor,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B82F6),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFF60A5FA), width: 1.5),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0xFF1D4ED8),
+                            offset: Offset(0, 4),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'SIMPAN KE PAPAN SKOR',
+                          style: GoogleFonts.fredoka(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  _LeaderboardWidget(list: _leaderboard),
+                ],
+                const SizedBox(height: 18),
+
+                // Tombol Iklan Rewarded
+                GestureDetector(
+                  onTap: _tontonIklan,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E2338),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFF59E0B), width: 1.5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.play_circle_fill_rounded,
+                            color: Color(0xFFF59E0B), size: 22),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Tonton Iklan • Lanjut Main (+1 Nyawa)',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFF59E0B),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => Navigator.popUntil(context, (r) => r.isFirst),
-                child: Text(
-                  '← Kembali ke Menu',
-                  style: GoogleFonts.baloo2(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF3B5BA5),
+                const SizedBox(height: 12),
+
+                // Tombol Main Lagi
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GameScreen(
+                          mode: widget.mode,
+                          categoryId: widget.categoryId,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF34D399), width: 1.5),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0xFF065F46),
+                          offset: Offset(0, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'MAIN LAGI',
+                        style: GoogleFonts.fredoka(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+
+                // Tombol Kembali ke Menu
+                TextButton(
+                  onPressed: () =>
+                      Navigator.popUntil(context, (r) => r.isFirst),
+                  child: Text(
+                    '← Kembali ke Menu Utama',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF94A3B8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -180,71 +373,76 @@ class _GameOverScreenState extends State<GameOverScreen> {
   }
 }
 
-class _Leaderboard extends StatelessWidget {
+class _LeaderboardWidget extends StatelessWidget {
   final List<SkorEntry> list;
 
-  const _Leaderboard({required this.list});
+  const _LeaderboardWidget({required this.list});
 
   @override
   Widget build(BuildContext context) {
-    if (list.isEmpty) {
-      return Text(
-        'Belum ada skor.',
-        style: GoogleFonts.baloo2(color: Colors.grey[600]),
-      );
-    }
-    return Column(
-      children: [
-        Text(
-          '🏆 Papan Skor',
-          style: GoogleFonts.baloo2(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF3B5BA5),
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2338),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF333D5E), width: 1.5),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '🏆 Papan Skor Tersimpan',
+            style: GoogleFonts.fredoka(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              for (var i = 0; i < list.length; i++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${i + 1}.',
-                        style: GoogleFonts.baloo2(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF5B8DEF),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          list[i].nama,
-                          style: GoogleFonts.baloo2(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Text(
-                        '${list[i].skor}',
-                        style: GoogleFonts.baloo2(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF3B5BA5),
-                        ),
-                      ),
-                    ],
+          const SizedBox(height: 12),
+          for (var i = 0; i < list.take(5).length; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Text(
+                    i == 0
+                        ? '🥇'
+                        : i == 1
+                            ? '🥈'
+                            : i == 2
+                                ? '🥉'
+                                : '${i + 1}.',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFF59E0B),
+                    ),
                   ),
-                ),
-            ],
-          ),
-        ),
-      ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      list[i].nama,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${list[i].skor} ⭐',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

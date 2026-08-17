@@ -1,23 +1,64 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/kata.dart';
 import '../services/audio_service.dart';
 import '../services/kosakata_service.dart';
+import '../services/speech_matcher.dart';
 import '../services/speech_service.dart';
 import '../widgets/falling_item.dart';
+import '../widgets/hint_builder.dart';
 import 'game_over_screen.dart';
 
 enum ModeInput { ketik, ngomong }
 
-/// Layar permainan utama.
+/// Item yang sedang aktif turun di layar permainan.
+class ItemJatuh {
+  final Kata kata;
+  final int lane; // 0, 1, atau 2
+  double progress; // 0.0 (atas) -> 1.0 (bawah)
+  final double speed;
+
+  ItemJatuh({
+    required this.kata,
+    required this.lane,
+    this.progress = 0.0,
+    this.speed = 1.0 / 18.0, // 18 detik per item
+  });
+}
+
+/// Floating feedback teks bonus saat tebakan berhasil
+class FloatingFeedback {
+  final String text;
+  final Color color;
+  final double x;
+  final double y;
+  double opacity;
+
+  FloatingFeedback({
+    required this.text,
+    required this.color,
+    required this.x,
+    required this.y,
+    this.opacity = 1.0,
+  });
+}
+
+/// Layar gameplay utama Hujan Kata dengan mode Klasik & Unlimited serta Audio Leveling.
 class GameScreen extends StatefulWidget {
   final ModeInput mode;
+  final String? categoryId;
+  final bool isUnlimited;
 
-  const GameScreen({super.key, required this.mode});
+  const GameScreen({
+    super.key,
+    required this.mode,
+    this.categoryId,
+    this.isUnlimited = false,
+  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -25,123 +66,384 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen>
     with SingleTickerProviderStateMixin {
-  static const _maxNyawa = 3;
-  static const _durasiTurun = Duration(seconds: 18);
-  static const _maksGambarSekaligus = 3;
+  static const int _maxNyawa = 3;
+  static const int _maksItemAktif = 3;
+  static const double _intervalSpawnDetik = 5.0;
 
-  final _speech = SpeechService();
-  final _controllerKetik = TextEditingController();
-  final _audio = AudioService();
+  final SpeechService _speech = SpeechService();
+  final TextEditingController _controllerKetik = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  final AudioService _audio = AudioService();
 
-  List<Kata> _daftarKata = [];
-  int _indeks = 0;
+  late final Ticker _ticker;
+  Duration _lastElapsed = Duration.zero;
 
-  // Item yang sedang turun: kata + posisi (0..1) + progress animasi.
-  final List<_ItemTurun> _items = [];
-  late final AnimationController _anim;
+  List<Kata> _poolKata = [];
+  int _indeksKata = 0;
 
+  final List<ItemJatuh> _items = [];
+  final List<FloatingFeedback> _feedbacks = [];
+
+  double _timerSpawnAkumulasi = 0.0;
   int _skor = 0;
   int _nyawa = _maxNyawa;
-  bool _gameOver = false;
+  int _kataBerhasil = 0;
+  bool _isPaused = false;
+  bool _isGameOver = false;
+  bool _isAudioMuted = false;
+  bool _isMicActive = false;
+  double _soundLevel = 0.0; // 0.0 sampai 1.0
+  String _speechTranscript = '';
 
   @override
   void initState() {
     super.initState();
-    _anim = AnimationController(vsync: this, duration: _durasiTurun);
-    _mulai();
+    _isAudioMuted = AudioService.isMuted;
+    _ticker = createTicker(_onTick);
+    _mulaiGame();
   }
 
-  Future<void> _mulai() async {
-    final semua = await KosakataService.loadAll();
-    _daftarKata = KosakataService.shuffle(semua);
+  Future<void> _mulaiGame() async {
+    final list = await KosakataService.loadKata(categoryId: widget.categoryId);
+    _poolKata = KosakataService.shuffle(list);
+    _indeksKata = 0;
+
     _spawnItem();
-    _anim.addListener(_onTick);
-    _anim.forward();
+
     if (widget.mode == ModeInput.ngomong) {
       await _speech.init();
       _mulaiDengar();
     }
+
+    _lastElapsed = Duration.zero;
+    _ticker.start();
   }
 
   void _spawnItem() {
-    if (_items.length >= _maksGambarSekaligus) return;
-    if (_indeks >= _daftarKata.length) {
-      _daftarKata = KosakataService.shuffle(_daftarKata);
-      _indeks = 0;
+    if (_items.length >= _maksItemAktif || _isGameOver || _isPaused) return;
+
+    if (_indeksKata >= _poolKata.length) {
+      _poolKata = KosakataService.shuffle(_poolKata);
+      _indeksKata = 0;
     }
-    final kata = _daftarKata[_indeks++];
-    // Staggered start: item baru mulai dari atas, sisanya jalan.
-    _items.add(_ItemTurun(kata: kata, progress: 0));
+
+    final kata = _poolKata[_indeksKata++];
+
+    // Tentukan lane (0, 1, 2) yang paling sepi
+    final laneCounts = [0, 0, 0];
+    for (final it in _items) {
+      if (it.progress < 0.5) {
+        laneCounts[it.lane]++;
+      }
+    }
+
+    int chosenLane = 0;
+    int minCount = 999;
+    for (var i = 0; i < 3; i++) {
+      if (laneCounts[i] < minCount) {
+        minCount = laneCounts[i];
+        chosenLane = i;
+      }
+    }
+
+    setState(() {
+      _items.add(ItemJatuh(
+        kata: kata,
+        lane: chosenLane,
+        progress: 0.0,
+      ));
+    });
   }
 
-  void _onTick() {
+  void _onTick(Duration elapsed) {
+    if (_isPaused || _isGameOver) return;
+
+    if (_lastElapsed == Duration.zero) {
+      _lastElapsed = elapsed;
+      return;
+    }
+
+    final delta = (elapsed - _lastElapsed).inMicroseconds / 1000000.0;
+    _lastElapsed = elapsed;
+
+    if (delta <= 0 || delta > 0.1) return;
+
     setState(() {
+      // 1. Perbarui posisi item yang jatuh
+      final toRemove = <ItemJatuh>[];
       for (final item in _items) {
-        item.progress = _anim.value;
+        item.progress += item.speed * delta;
+        if (item.progress >= 1.0) {
+          toRemove.add(item);
+        }
       }
-      // Cek item yang mentok (progress >= 1).
-      _cekNentok();
+
+      // 2. Tangani item yang mentok di bawah
+      for (final item in toRemove) {
+        _items.remove(item);
+        _handleMentok(item);
+      }
+
+      // 3. Tangani timer spawn berkala
+      _timerSpawnAkumulasi += delta;
+      if (_items.isEmpty ||
+          (_timerSpawnAkumulasi >= _intervalSpawnDetik &&
+              _items.length < _maksItemAktif)) {
+        _timerSpawnAkumulasi = 0;
+        _spawnItem();
+      }
+
+      // 4. Perbarui animasi floating feedback
+      for (final fb in _feedbacks.toList()) {
+        fb.opacity -= delta * 1.5;
+        if (fb.opacity <= 0) {
+          _feedbacks.remove(fb);
+        }
+      }
     });
   }
 
-  void _cekNentok() {
-    final nentok = _items.where((i) => i.progress >= 1.0).toList();
-    for (final item in nentok) {
-      _items.remove(item);
-      _nyawa -= 1;
-      _spawnItem();
-    }
-    if (_nyawa <= 0) {
-      _gameOver = true;
-      _anim.stop();
-      _speech.stop();
-      _audio.gameOver();
-      Future.microtask(_keGameOver);
-    }
-  }
-
-  void _jawab(_ItemTurun item) {
-    if (!_items.contains(item)) return;
-    setState(() {
-      _items.remove(item);
-      _skor += 10;
-      _spawnItem();
-    });
-    _audio.benar();
-  }
-
-  void _jawabBenar(String input) {
-    // Cari item yang jawabannya cocok (case-insensitive).
-    for (final item in _items.toList()) {
-      if (item.kata.en.toLowerCase().trim() == input.toLowerCase().trim()) {
-        _jawab(item);
-        return;
+  void _handleMentok(ItemJatuh item) {
+    if (widget.isUnlimited) {
+      // Mode Unlimited: Nyawa tidak berkurang, tidak game over
+      _audio.click();
+      if (_items.isEmpty) {
+        _spawnItem();
       }
+      return;
     }
-    // Salah → efek suara (tidak hilang nyawa).
+
+    // Mode Klasik: -1 Nyawa
     _audio.salah();
+    _nyawa--;
+
+    if (_nyawa <= 0) {
+      _triggerGameOver();
+    } else if (_items.isEmpty) {
+      _spawnItem();
+    }
+  }
+
+  void _periksaJawaban(String input) {
+    if (_isGameOver || _isPaused || input.trim().isEmpty) return;
+
+    // Cari item aktif yang cocok menggunakan SpeechMatcher / HintBuilder
+    ItemJatuh? matchedItem;
+    for (final item in _items) {
+      if (widget.mode == ModeInput.ngomong) {
+        if (SpeechMatcher.isSpeechMatch(item.kata.en, input)) {
+          matchedItem = item;
+          break;
+        }
+      } else {
+        if (HintBuilder.isCorrect(item.kata.en, input)) {
+          matchedItem = item;
+          break;
+        }
+      }
+    }
+
+    if (matchedItem != null) {
+      int poin = 10;
+      String bonusText = '+10 ⭐';
+
+      if (matchedItem.progress < 0.33) {
+        poin = 15;
+        bonusText = '+15 CEPAT! ⚡';
+      } else if (matchedItem.progress < 0.66) {
+        poin = 12;
+        bonusText = '+12 BAGUS! ✨';
+      }
+
+      _audio.benar();
+
+      setState(() {
+        _skor += poin;
+        _kataBerhasil++;
+        _feedbacks.add(FloatingFeedback(
+          text: bonusText,
+          color: const Color(0xFF10B981),
+          x: _hitungPosX(matchedItem!.lane, MediaQuery.of(context).size.width),
+          y: MediaQuery.of(context).size.height * matchedItem.progress * 0.7 + 50,
+        ));
+        _items.remove(matchedItem);
+        _speechTranscript = '';
+      });
+
+      if (_items.isEmpty) {
+        _spawnItem();
+      }
+    } else {
+      if (widget.mode == ModeInput.ketik) {
+        _audio.salah();
+      }
+    }
+  }
+
+  double _hitungPosX(int lane, double screenWidth) {
+    const itemWidth = 84.0;
+    final usableWidth = max(screenWidth - itemWidth - 32, 100.0);
+    final laneSpacing = usableWidth / 2;
+    return 16 + (lane * laneSpacing);
   }
 
   void _mulaiDengar() {
-    _speech.setErrorHandler((_) => _mulaiDengar()); // retry kalau error
+    _speech.setStatusHandler((listening) {
+      if (mounted) setState(() => _isMicActive = listening);
+    });
+
     _speech.listen(
-      onResult: (text) => _jawabBenar(text),
+      onResult: (text) {
+        if (!mounted || _isPaused || _isGameOver) return;
+        setState(() {
+          _speechTranscript = text;
+        });
+        _periksaJawaban(text);
+      },
+      onSoundLevelChange: (level) {
+        if (!mounted || _isPaused || _isGameOver) return;
+        // Normalize level (-10 dB to 10 dB atau 0 to 100) ke 0.0 - 1.0
+        double normalized = 0.0;
+        if (level > 0) {
+          normalized = (level / 10.0).clamp(0.0, 1.0);
+        } else if (level < 0) {
+          normalized = ((level + 10.0) / 10.0).clamp(0.0, 1.0);
+        }
+        setState(() {
+          _soundLevel = normalized;
+          _isMicActive = true;
+        });
+      },
     );
   }
 
-  void _keGameOver() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => GameOverScreen(skor: _skor),
+  void _triggerGameOver() {
+    _isGameOver = true;
+    _ticker.stop();
+    _speech.stop();
+    _audio.gameOver();
+
+    Future.microtask(() {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GameOverScreen(
+            skor: _skor,
+            kataTebak: _kataBerhasil,
+            mode: widget.mode,
+            categoryId: widget.categoryId,
+          ),
+        ),
+      );
+    });
+  }
+
+  void _togglePause() {
+    setState(() {
+      _isPaused = !_isPaused;
+      if (_isPaused) {
+        _ticker.stop();
+        _speech.stop();
+      } else {
+        _lastElapsed = Duration.zero;
+        _ticker.start();
+        if (widget.mode == ModeInput.ngomong) {
+          _mulaiDengar();
+        }
+      }
+    });
+
+    if (_isPaused) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => _buildPauseDialog(ctx),
+      );
+    }
+  }
+
+  Widget _buildPauseDialog(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: const Color(0xFF202538),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: Color(0xFF333D5E), width: 2),
+      ),
+      title: Center(
+        child: Text(
+          'Permainan Dijeda ⏸️',
+          style: GoogleFonts.fredoka(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161928),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF2D3654)),
+            ),
+            child: Text(
+              'Skor: $_skor ⭐ • ${widget.isUnlimited ? "Unlimited" : "$_nyawa Nyawa"}',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFFF59E0B),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 50),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              _togglePause();
+            },
+            child: Text(
+              'LANJUTKAN',
+              style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            child: Text(
+              'Keluar ke Menu Utama',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFFEF4444),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   @override
   void dispose() {
-    _anim.dispose();
+    _ticker.dispose();
     _controllerKetik.dispose();
+    _focusNode.dispose();
     _speech.stop();
     _audio.dispose();
     super.dispose();
@@ -150,44 +452,88 @@ class _GameScreenState extends State<GameScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF0FF),
+      backgroundColor: const Color(0xFF161928),
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Stack(
           children: [
-            // Area item turun.
+            // Background Canvas Grid & Rain Streaks
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _TactileArcadeBackgroundPainter(),
+              ),
+            ),
+
+            // Area Jatuh Objek
             Positioned.fill(
               child: LayoutBuilder(
                 builder: (context, constraints) {
+                  final maxY = constraints.maxHeight - 160;
                   return Stack(
                     children: [
                       for (final item in _items)
                         Positioned(
-                          left: _xRandom(item),
-                          top: constraints.maxHeight * item.progress,
-                          child: FallingItem(kata: item.kata, progress: item.progress),
+                          left: _hitungPosX(item.lane, constraints.maxWidth),
+                          top: max(0.0, maxY * item.progress),
+                          child: FallingItem(
+                            kata: item.kata,
+                            progress: item.progress,
+                          ),
+                        ),
+
+                      // Floating Feedback (Skor Bonus)
+                      for (final fb in _feedbacks)
+                        Positioned(
+                          left: fb.x,
+                          top: fb.y,
+                          child: Opacity(
+                            opacity: fb.opacity.clamp(0.0, 1.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E2238),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                    color: const Color(0xFF333D5E), width: 1.5),
+                                boxShadow: const [
+                                  BoxShadow(
+                                      color: Color(0x66000000),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 3)),
+                                ],
+                              ),
+                              child: Text(
+                                fb.text,
+                                style: GoogleFonts.fredoka(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  color: fb.color,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                     ],
                   );
                 },
               ),
             ),
-            // Header: skor & nyawa.
+
+            // Header Atas (Skor, Nyawa / Unlimited, Sound, Pause)
             Positioned(
-              top: 8,
-              left: 0,
-              right: 0,
-              child: _Header(skor: _skor, nyawa: _nyawa),
+              top: 10,
+              left: 14,
+              right: 14,
+              child: _buildHeader(),
             ),
-            // Input di bawah.
+
+            // Input Bar di Bawah (dengan Live Audio Visualizer)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              child: _InputBar(
-                mode: widget.mode,
-                controller: _controllerKetik,
-                onSubmit: _jawabBenar,
-              ),
+              child: _buildInputBar(),
             ),
           ],
         ),
@@ -195,126 +541,396 @@ class _GameScreenState extends State<GameScreen>
     );
   }
 
-  double _xRandom(_ItemTurun item) {
-    // Posisi x pseudo-random per item (biar tidak menumpuk).
-    final seed = item.kata.en.hashCode % 100;
-    return (seed / 100) * 200; // 0..200 px dari kiri
-  }
-}
-
-class _ItemTurun {
-  final Kata kata;
-  double progress;
-  _ItemTurun({required this.kata, required this.progress});
-}
-
-class _Header extends StatelessWidget {
-  final int skor;
-  final int nyawa;
-
-  const _Header({required this.skor, required this.nyawa});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 4)],
-            ),
-            child: Text(
-              '⭐ $skor',
-              style: GoogleFonts.baloo2(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF3B5BA5),
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        // Badge Skor Tactile
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF202538),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF333D5E), width: 1.5),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x33000000),
+                offset: Offset(0, 3),
+                blurRadius: 4,
               ),
-            ),
+            ],
           ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('⭐', style: TextStyle(fontSize: 16)),
+              const SizedBox(width: 6),
+              Text(
+                '$_skor',
+                style: GoogleFonts.fredoka(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFF59E0B),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+
+        // Indikator Nyawa (Klasik 3 Hearts ATAU Unlimited Infinity Badge)
+        if (widget.isUnlimited)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 4)],
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF3B82F6), width: 1.5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x333B82F6),
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-            child: Text(
-              '❤️' * nyawa + '🖤' * (3 - nyawa),
-              style: const TextStyle(fontSize: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('♾️', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 6),
+                Text(
+                  'UNLIMITED',
+                  style: GoogleFonts.fredoka(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF60A5FA),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF202538),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF333D5E), width: 1.5),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(3, (index) {
+                final active = index < _nyawa;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Text(
+                    active ? '❤️' : '🖤',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: active ? Colors.redAccent : Colors.grey[700],
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
-        ],
-      ),
+        const SizedBox(width: 8),
+
+        // Tombol Suara
+        InkWell(
+          onTap: () async {
+            final muted = await AudioService.toggleMute();
+            setState(() => _isAudioMuted = muted);
+          },
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF202538),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF333D5E), width: 1.5),
+            ),
+            child: Icon(
+              _isAudioMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+              color: const Color(0xFF94A3B8),
+              size: 20,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+
+        // Tombol Jeda (Pause)
+        InkWell(
+          onTap: _togglePause,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF202538),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF333D5E), width: 1.5),
+            ),
+            child: const Icon(
+              Icons.pause_rounded,
+              color: Color(0xFF94A3B8),
+              size: 20,
+            ),
+          ),
+        ),
+      ],
     );
   }
-}
 
-class _InputBar extends StatelessWidget {
-  final ModeInput mode;
-  final TextEditingController controller;
-  final ValueChanged<String> onSubmit;
-
-  const _InputBar({
-    required this.mode,
-    required this.controller,
-    required this.onSubmit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (mode == ModeInput.ngomong) {
+  Widget _buildInputBar() {
+    if (widget.mode == ModeInput.ngomong) {
       return Container(
-        padding: const EdgeInsets.all(16),
-        color: Colors.white.withValues(alpha: 0.95),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E2235),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          border: const Border(top: BorderSide(color: Color(0xFF333D5E), width: 1.5)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x44000000),
+              blurRadius: 16,
+              offset: Offset(0, -4),
+            ),
+          ],
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.mic, color: Color(0xFF3B5BA5), size: 28),
-            const SizedBox(width: 8),
-            Text(
-              'Ucapkan jawabannya… 🎤',
-              style: GoogleFonts.baloo2(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF3B5BA5),
+            // Mic Orb dengan Animated Glowing Ring
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _isMicActive
+                    ? const Color(0xFF10B981).withValues(alpha: 0.2)
+                    : const Color(0xFF333D5E),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: _isMicActive
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF64748B),
+                  width: 2,
+                ),
+                boxShadow: _isMicActive
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFF10B981).withValues(
+                              alpha: (0.3 + _soundLevel * 0.5).clamp(0.0, 1.0)),
+                          blurRadius: 12 + _soundLevel * 14,
+                          spreadRadius: 2 + _soundLevel * 6,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Icon(
+                Icons.mic,
+                color: _isMicActive
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFF94A3B8),
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            // Transcript text dan Live Audio Leveling Equalizer
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        _isMicActive ? 'Mendengarkan Suara...' : 'Menyiapkan Mic...',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: _isMicActive
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      const Spacer(),
+                      // Equalizer Waveform Bars
+                      _AudioWaveVisualizer(
+                        isActive: _isMicActive,
+                        soundLevel: _soundLevel,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _speechTranscript.isEmpty
+                        ? 'Sebutkan kata dalam Bahasa Inggris...'
+                        : '"$_speechTranscript"',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _speechTranscript.isEmpty
+                          ? const Color(0xFF64748B)
+                          : const Color(0xFFF8FAFC),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       );
     }
-    // Mode ketik — autofocus, Enter untuk kirim, tanpa tombol.
+
+    // Mode Ketik
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white.withValues(alpha: 0.95),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2235),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: const Border(top: BorderSide(color: Color(0xFF333D5E), width: 1.5)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x44000000),
+            blurRadius: 16,
+            offset: Offset(0, -4),
+          ),
+        ],
+      ),
       child: TextField(
-        controller: controller,
+        controller: _controllerKetik,
+        focusNode: _focusNode,
         autofocus: true,
         textInputAction: TextInputAction.done,
         onSubmitted: (value) {
           if (value.trim().isNotEmpty) {
-            onSubmit(value);
-            controller.clear();
+            _periksaJawaban(value);
+            _controllerKetik.clear();
+            _focusNode.requestFocus();
           }
         },
-        style: GoogleFonts.baloo2(fontSize: 20, fontWeight: FontWeight.w700),
+        style: GoogleFonts.fredoka(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
         decoration: InputDecoration(
-          hintText: 'Ketik jawaban, tekan Enter…',
-          filled: true,
-          fillColor: const Color(0xFFF0F4FF),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(24),
-            borderSide: BorderSide.none,
+          hintText: 'Ketik jawaban lalu tekan Enter ↵',
+          hintStyle: GoogleFonts.fredoka(
+            fontSize: 15,
+            color: const Color(0xFF64748B),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          filled: true,
+          fillColor: const Color(0xFF141724),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Color(0xFF2D3654), width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Color(0xFF2D3654), width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.arrow_upward_rounded,
+                    color: Colors.white, size: 20),
+              ),
+              onPressed: () {
+                if (_controllerKetik.text.trim().isNotEmpty) {
+                  _periksaJawaban(_controllerKetik.text);
+                  _controllerKetik.clear();
+                  _focusNode.requestFocus();
+                }
+              },
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+/// Visualizer gelombang equalizer audio real-time yang bereaksi dinamis terhadap desibel suara
+class _AudioWaveVisualizer extends StatelessWidget {
+  final bool isActive;
+  final double soundLevel;
+
+  const _AudioWaveVisualizer({
+    required this.isActive,
+    required this.soundLevel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isActive) {
+      return const SizedBox(width: 40);
+    }
+
+    final level = soundLevel.clamp(0.0, 1.0);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildBar(4 + level * 12),
+        const SizedBox(width: 3),
+        _buildBar(6 + level * 16),
+        const SizedBox(width: 3),
+        _buildBar(8 + level * 20),
+        const SizedBox(width: 3),
+        _buildBar(6 + level * 14),
+        const SizedBox(width: 3),
+        _buildBar(4 + level * 10),
+      ],
+    );
+  }
+
+  Widget _buildBar(double height) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 80),
+      width: 3.5,
+      height: height.clamp(4.0, 24.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF10B981),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+}
+
+/// Background artistik tetesan hujan bergaya tactile arcade
+class _TactileArcadeBackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rainPaint = Paint()
+      ..color = const Color(0x12FFFFFF)
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round;
+
+    final random = Random(1234);
+    for (var i = 0; i < 35; i++) {
+      final x = random.nextDouble() * size.width;
+      final y = random.nextDouble() * size.height;
+      final len = 20.0 + random.nextDouble() * 25.0;
+      canvas.drawLine(Offset(x, y), Offset(x - 5, y + len), rainPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
