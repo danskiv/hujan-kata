@@ -47,7 +47,7 @@ class FloatingFeedback {
   });
 }
 
-/// Layar gameplay utama Hujan Kata dengan mode Klasik & Unlimited serta Audio Leveling.
+/// Layar gameplay utama Hujan Kata dengan indikator mic ultra-jelas dan mode unlimited.
 class GameScreen extends StatefulWidget {
   final ModeInput mode;
   final String? categoryId;
@@ -244,13 +244,14 @@ class _GameScreenState extends State<GameScreen>
     }
 
     if (matchedItem != null) {
+      final targetItem = matchedItem;
       int poin = 10;
       String bonusText = '+10 ⭐';
 
-      if (matchedItem.progress < 0.33) {
+      if (targetItem.progress < 0.33) {
         poin = 15;
         bonusText = '+15 CEPAT! ⚡';
-      } else if (matchedItem.progress < 0.66) {
+      } else if (targetItem.progress < 0.66) {
         poin = 12;
         bonusText = '+12 BAGUS! ✨';
       }
@@ -263,10 +264,10 @@ class _GameScreenState extends State<GameScreen>
         _feedbacks.add(FloatingFeedback(
           text: bonusText,
           color: const Color(0xFF10B981),
-          x: _hitungPosX(matchedItem!.lane, MediaQuery.of(context).size.width),
-          y: MediaQuery.of(context).size.height * matchedItem.progress * 0.7 + 50,
+          x: _hitungPosX(targetItem.lane, MediaQuery.of(context).size.width),
+          y: MediaQuery.of(context).size.height * targetItem.progress * 0.65 + 40,
         ));
-        _items.remove(matchedItem);
+        _items.remove(targetItem);
         _speechTranscript = '';
       });
 
@@ -281,10 +282,10 @@ class _GameScreenState extends State<GameScreen>
   }
 
   double _hitungPosX(int lane, double screenWidth) {
-    const itemWidth = 84.0;
-    final usableWidth = max(screenWidth - itemWidth - 32, 100.0);
+    const itemWidth = 96.0;
+    final usableWidth = max(screenWidth - itemWidth - 28, 100.0);
     final laneSpacing = usableWidth / 2;
-    return 16 + (lane * laneSpacing);
+    return 14 + (lane * laneSpacing);
   }
 
   void _mulaiDengar() {
@@ -302,7 +303,6 @@ class _GameScreenState extends State<GameScreen>
       },
       onSoundLevelChange: (level) {
         if (!mounted || _isPaused || _isGameOver) return;
-        // Normalize level (-10 dB to 10 dB atau 0 to 100) ke 0.0 - 1.0
         double normalized = 0.0;
         if (level > 0) {
           normalized = (level / 10.0).clamp(0.0, 1.0);
@@ -468,7 +468,7 @@ class _GameScreenState extends State<GameScreen>
             Positioned.fill(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final maxY = constraints.maxHeight - 160;
+                  final maxY = constraints.maxHeight - 170;
                   return Stack(
                     children: [
                       for (final item in _items)
@@ -528,7 +528,7 @@ class _GameScreenState extends State<GameScreen>
               child: _buildHeader(),
             ),
 
-            // Input Bar di Bawah (dengan Live Audio Visualizer)
+            // Input Bar di Bawah (dengan Live Audio Visualizer Ultra Jelas)
             Positioned(
               left: 0,
               right: 0,
@@ -685,16 +685,16 @@ class _GameScreenState extends State<GameScreen>
   Widget _buildInputBar() {
     if (widget.mode == ModeInput.ngomong) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
           color: const Color(0xFF1E2235),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          border: const Border(top: BorderSide(color: Color(0xFF333D5E), width: 1.5)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+          border: const Border(top: BorderSide(color: Color(0xFF333D5E), width: 2)),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x44000000),
-              blurRadius: 16,
-              offset: Offset(0, -4),
+              color: Color(0x66000000),
+              blurRadius: 20,
+              offset: Offset(0, -6),
             ),
           ],
         ),
@@ -703,35 +703,33 @@ class _GameScreenState extends State<GameScreen>
             // Mic Orb dengan Animated Glowing Ring
             AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: _isMicActive
-                    ? const Color(0xFF10B981).withValues(alpha: 0.2)
+                    ? const Color(0xFF10B981)
                     : const Color(0xFF333D5E),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: _isMicActive
-                      ? const Color(0xFF10B981)
+                      ? const Color(0xFF34D399)
                       : const Color(0xFF64748B),
-                  width: 2,
+                  width: 2.5,
                 ),
                 boxShadow: _isMicActive
                     ? [
                         BoxShadow(
                           color: const Color(0xFF10B981).withValues(
-                              alpha: (0.3 + _soundLevel * 0.5).clamp(0.0, 1.0)),
-                          blurRadius: 12 + _soundLevel * 14,
-                          spreadRadius: 2 + _soundLevel * 6,
+                              alpha: (0.4 + _soundLevel * 0.6).clamp(0.0, 1.0)),
+                          blurRadius: 16 + _soundLevel * 18,
+                          spreadRadius: 3 + _soundLevel * 8,
                         ),
                       ]
                     : [],
               ),
               child: Icon(
-                Icons.mic,
-                color: _isMicActive
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFF94A3B8),
-                size: 26,
+                Icons.mic_rounded,
+                color: _isMicActive ? Colors.white : const Color(0xFF94A3B8),
+                size: 28,
               ),
             ),
             const SizedBox(width: 14),
@@ -744,14 +742,48 @@ class _GameScreenState extends State<GameScreen>
                 children: [
                   Row(
                     children: [
-                      Text(
-                        _isMicActive ? 'Mendengarkan Suara...' : 'Menyiapkan Mic...',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
                           color: _isMicActive
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFF94A3B8),
+                              ? const Color(0xFF10B981).withValues(alpha: 0.2)
+                              : const Color(0xFF333D5E),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: _isMicActive
+                                ? const Color(0xFF10B981)
+                                : const Color(0xFF475569),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                color: _isMicActive
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFF94A3B8),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              _isMicActive
+                                  ? 'MIC AKTIF (BICARA)'
+                                  : 'MENYIAPKAN...',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: _isMicActive
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFF94A3B8),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const Spacer(),
@@ -762,19 +794,34 @@ class _GameScreenState extends State<GameScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _speechTranscript.isEmpty
-                        ? 'Sebutkan kata dalam Bahasa Inggris...'
-                        : '"$_speechTranscript"',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.fredoka(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _speechTranscript.isEmpty
-                          ? const Color(0xFF64748B)
-                          : const Color(0xFFF8FAFC),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF141724),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _speechTranscript.isNotEmpty
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF2D3654),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Text(
+                      _speechTranscript.isEmpty
+                          ? 'Sebutkan kata dalam Bahasa Inggris...'
+                          : '"$_speechTranscript"',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.fredoka(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: _speechTranscript.isEmpty
+                            ? const Color(0xFF64748B)
+                            : const Color(0xFFF59E0B),
+                      ),
                     ),
                   ),
                 ],
@@ -887,15 +934,15 @@ class _AudioWaveVisualizer extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildBar(4 + level * 12),
+        _buildBar(5 + level * 14),
         const SizedBox(width: 3),
-        _buildBar(6 + level * 16),
+        _buildBar(8 + level * 18),
         const SizedBox(width: 3),
-        _buildBar(8 + level * 20),
+        _buildBar(12 + level * 22),
         const SizedBox(width: 3),
-        _buildBar(6 + level * 14),
+        _buildBar(8 + level * 16),
         const SizedBox(width: 3),
-        _buildBar(4 + level * 10),
+        _buildBar(5 + level * 12),
       ],
     );
   }
@@ -903,11 +950,17 @@ class _AudioWaveVisualizer extends StatelessWidget {
   Widget _buildBar(double height) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 80),
-      width: 3.5,
-      height: height.clamp(4.0, 24.0),
+      width: 4.0,
+      height: height.clamp(4.0, 26.0),
       decoration: BoxDecoration(
         color: const Color(0xFF10B981),
         borderRadius: BorderRadius.circular(2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x6610B981),
+            blurRadius: 4,
+          ),
+        ],
       ),
     );
   }

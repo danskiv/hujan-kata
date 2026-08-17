@@ -5,6 +5,7 @@ import '../models/kata.dart';
 import 'hint_builder.dart';
 
 /// Kartu kata fisik (tactile flashcard) yang turun seperti tetesan hujan kata.
+/// Dirancang agar teks nama Indonesia tidak terpotong (multi-line & responsif).
 class FallingItem extends StatelessWidget {
   final Kata kata;
   final double progress;
@@ -27,7 +28,7 @@ class FallingItem extends StatelessWidget {
       children: [
         // Kartu Utama Bergaya Tactile Flashcard
         Container(
-          width: 84,
+          width: 96,
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFFFFFDF8), // Warm ivory paper
@@ -56,23 +57,23 @@ class FallingItem extends StatelessWidget {
             children: [
               // Gambar Objek
               Container(
-                width: 60,
-                height: 60,
+                width: 66,
+                height: 66,
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF4EFE6),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
                     'assets/images/${kata.image}.png',
-                    width: 52,
-                    height: 52,
+                    width: 58,
+                    height: 58,
                     fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) => const Icon(
                       Icons.image_outlined,
-                      size: 32,
+                      size: 36,
                       color: Color(0xFF64748B),
                     ),
                   ),
@@ -80,22 +81,25 @@ class FallingItem extends StatelessWidget {
               ),
               const SizedBox(height: 6),
 
-              // Label Arti Bahasa Indonesia
+              // Label Arti Bahasa Indonesia (Maksimal 2 baris agar kata panjang tidak terpotong)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEDE5D5),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   kata.id.toUpperCase(),
-                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11,
+                    fontSize: kata.id.length > 10 ? 9.5 : 11,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF475569),
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
+                    height: 1.1,
                   ),
                 ),
               ),

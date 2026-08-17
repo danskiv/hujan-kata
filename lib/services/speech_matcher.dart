@@ -1,8 +1,8 @@
 import 'dart:math';
 
 /// Engine pencocokan ucapan (Speech Recognition Matcher) tingkat lanjut:
-/// Menggabungkan Phonetic Metaphone, N-Gram Overlap, Suffix Stripping,
-/// Substring Window Scanning, dan Kamus Fonetik Aksen Indo-English.
+/// Mendukung konversi angka kata <-> digit ("twelve" <-> "12", "sixteen" <-> "16"),
+/// kamus fonetik aksen Indo-English, plural/singular, jamak, dan fuzzy matching.
 class SpeechMatcher {
   static const Set<String> _fillerWords = {
     'a',
@@ -37,10 +37,66 @@ class SpeechMatcher {
     'no',
   };
 
+  /// Pemetaan angka dalam kata ke bentuk digit dan sebaliknya
+  static const Map<String, String> _wordToDigit = {
+    'zero': '0',
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+    'eight': '8',
+    'nine': '9',
+    'ten': '10',
+    'eleven': '11',
+    'twelve': '12',
+    'thirteen': '13',
+    'fourteen': '14',
+    'fifteen': '15',
+    'sixteen': '16',
+    'seventeen': '17',
+    'eighteen': '18',
+    'nineteen': '19',
+    'twenty': '20',
+    'thirty': '30',
+    'forty': '40',
+    'fifty': '50',
+    'sixty': '60',
+    'seventy': '70',
+    'eighty': '80',
+    'ninety': '90',
+    'hundred': '100',
+  };
+
+  static final Map<String, String> _digitToWord = {
+    for (final entry in _wordToDigit.entries) entry.value: entry.key,
+  };
+
   /// Pemetaan fonetik spesifik untuk kata-kata bahasa Inggris yang sering
   /// dilafalkan dengan aksen khas Indonesia atau anak-anak.
   static const Map<String, List<String>> _phoneticAliases = {
-    'three': ['tri', 'tree', 'teri', 'tiga'],
+    'one': ['1', 'wan', 'won', 'satu'],
+    'two': ['2', 'tu', 'too', 'dua'],
+    'three': ['3', 'tri', 'tree', 'teri', 'tiga'],
+    'four': ['4', 'for', 'fur', 'empat'],
+    'five': ['5', 'faif', 'paip', 'lima'],
+    'six': ['6', 'siks', 'sik', 'enam'],
+    'seven': ['7', 'sefen', 'sepen', 'tujuh'],
+    'eight': ['8', 'eit', 'eyt', 'delapan'],
+    'nine': ['9', 'nain', 'nayen', 'sembilan'],
+    'ten': ['10', 'sepuluh'],
+    'eleven': ['11', 'ilefen', 'elepen', 'sebelas'],
+    'twelve': ['12', 'twelv', 'twelp', 'twel', 'dua belas'],
+    'thirteen': ['13', 'tirtin', 'tertin', 'tiga belas'],
+    'fourteen': ['14', 'fortin', 'empat belas'],
+    'fifteen': ['15', 'fiftin', 'piptin', 'lima belas'],
+    'sixteen': ['16', 'sikstin', 'enam belas'],
+    'seventeen': ['17', 'seventin', 'sepentin', 'tujuh belas'],
+    'eighteen': ['18', 'eitin', 'eytin', 'delapan belas'],
+    'nineteen': ['19', 'naintin', 'nayentin', 'sembilan belas'],
+    'twenty': ['20', 'twenti', 'tuwenti', 'dua puluh'],
     'apple': ['epel', 'apel', 'appl', 'aple', 'epal'],
     'bird': ['berd', 'bord', 'burd', 'bot'],
     'black': ['blek', 'blak', 'belak'],
@@ -84,6 +140,8 @@ class SpeechMatcher {
     'tshirt': ['kaos', 'tisert', 't shirt'],
     'jeans': ['jins', 'jin'],
     'shoes': ['su', 'syu', 'sepatu'],
+    'scorpion': ['skorpion', 'kalajengking'],
+    'spider': ['spaider', 'laba'],
   };
 
   /// Cek apakah target [targetWord] cocok dengan teks ucapan [speechTranscript].
@@ -99,7 +157,25 @@ class SpeechMatcher {
     // 2. Cek apakah target terkandung utuh dalam transcript
     if (normTranscript.contains(normTarget)) return true;
 
-    // 3. Cek kamus fonetik alias
+    // 3. Cek Konversi Angka Kata <-> Digit (misal: "twelve" <-> "12", "sixteen" <-> "16")
+    final targetDigit = _wordToDigit[normTarget];
+    if (targetDigit != null) {
+      if (normTranscript == targetDigit ||
+          normTranscript.contains(targetDigit) ||
+          speechTranscript.contains(targetDigit)) {
+        return true;
+      }
+    }
+
+    final targetFromDigit = _digitToWord[normTarget];
+    if (targetFromDigit != null) {
+      if (normTranscript == targetFromDigit ||
+          normTranscript.contains(targetFromDigit)) {
+        return true;
+      }
+    }
+
+    // 4. Cek kamus fonetik alias
     final aliases = _phoneticAliases[normTarget];
     if (aliases != null) {
       for (final alias in aliases) {
@@ -110,7 +186,7 @@ class SpeechMatcher {
       }
     }
 
-    // 4. Pecah transcript menjadi kata-kata terpisah
+    // 5. Pecah transcript menjadi kata-kata terpisah
     final words = speechTranscript
         .toLowerCase()
         .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
@@ -125,7 +201,7 @@ class SpeechMatcher {
       }
     }
 
-    // 5. Cek untuk kata majemuk (2 kata, misal "ice cream", "police car", "hot dog")
+    // 6. Cek untuk kata majemuk (misal "ice cream", "police car", "hot dog")
     if (targetWord.contains(' ') || targetWord.contains('-')) {
       final targetTokens = targetWord
           .toLowerCase()
@@ -149,7 +225,7 @@ class SpeechMatcher {
       }
     }
 
-    // 6. Cek kecocokan fonetik seluruh frasa jika transcript pendek
+    // 7. Cek kecocokan fonetik seluruh frasa jika transcript pendek
     final targetPhonetic = _toPhonetic(normTarget);
     final transcriptPhonetic = _toPhonetic(normTranscript);
     if (targetPhonetic == transcriptPhonetic) return true;
@@ -171,6 +247,11 @@ class SpeechMatcher {
 
     final normToken = _normalize(token);
     if (target == normToken) return true;
+
+    // Cek angka kata <-> digit per-token
+    if (_wordToDigit[target] == normToken) return true;
+    if (_digitToWord[target] == normToken) return true;
+    if (_wordToDigit[normToken] == target) return true;
 
     // Cek alias
     final aliases = _phoneticAliases[target];

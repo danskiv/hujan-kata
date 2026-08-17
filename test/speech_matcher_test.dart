@@ -9,6 +9,16 @@ void main() {
       expect(SpeechMatcher.isSpeechMatch('banana', 'BANANA'), true);
     });
 
+    test('Number words vs digit transcriptions (e.g. twelve <-> 12, sixteen <-> 16)', () {
+      expect(SpeechMatcher.isSpeechMatch('twelve', '12'), true);
+      expect(SpeechMatcher.isSpeechMatch('12', 'twelve'), true);
+      expect(SpeechMatcher.isSpeechMatch('sixteen', '16'), true);
+      expect(SpeechMatcher.isSpeechMatch('sixteen', 'number 16'), true);
+      expect(SpeechMatcher.isSpeechMatch('one', '1'), true);
+      expect(SpeechMatcher.isSpeechMatch('three', '3'), true);
+      expect(SpeechMatcher.isSpeechMatch('twenty', '20'), true);
+    });
+
     test('Filler phrases and sentences match target word inside', () {
       expect(SpeechMatcher.isSpeechMatch('cat', 'it is a cat'), true);
       expect(SpeechMatcher.isSpeechMatch('apple', 'I see an apple here'), true);
@@ -35,6 +45,7 @@ void main() {
       expect(SpeechMatcher.isSpeechMatch('bird', 'berd'), true);
       expect(SpeechMatcher.isSpeechMatch('black', 'blek'), true);
       expect(SpeechMatcher.isSpeechMatch('fish', 'vis'), true);
+      expect(SpeechMatcher.isSpeechMatch('twelve', 'twelv'), true);
     });
 
     test('Fuzzy distance tolerance', () {
